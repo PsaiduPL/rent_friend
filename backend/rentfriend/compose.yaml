@@ -1,0 +1,11 @@
+version : '3.8'
+services:
+  database:
+    container_name: 'rentfriend_db'
+    image: 'postgres:15.2'
+    ports:
+      - '5433:5432'
+    environment:
+      - 'POSTGRES_USER=user'
+      - 'POSTGRES_DB=rentfriend'
+      - 'POSTGRES_PASSWORD=user'
