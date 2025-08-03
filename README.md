@@ -13,3 +13,8 @@ or just use if you have **postgres downloaded**
 ```bash
 psql -U user -d rentfriend -p 5433
 ```
+
+## Useful wesites
+> https://www.conventionalcommits.org/en/v1.0.0/
+
+
