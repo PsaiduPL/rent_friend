@@ -4,6 +4,7 @@ package org.rentfriend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -23,7 +24,7 @@ public class MyUser {
   String username;
 
   @Column(nullable = false,
-      unique = true,
+      unique = false,
       name = "email"
   )
   @Size(min = 1, max = 100)
@@ -44,6 +45,7 @@ public class MyUser {
   )
   @Size(min = 1, max = 20)
   @NotBlank
+
   String role;
 
   public MyUser() {

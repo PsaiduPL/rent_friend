@@ -3,56 +3,61 @@ package org.rentfriend.controller;
 
 import jakarta.validation.Valid;
 import org.rentfriend.entity.MyUser;
+import org.rentfriend.exception.BadRoleException;
+import org.rentfriend.exception.UserExistsException;
 import org.rentfriend.repository.UserRepository;
 import org.rentfriend.requestData.MyUserRequest;
+import org.rentfriend.service.RegisterService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
 public class MyUserController {
-  final UserRepository userRepository;
-  final PasswordEncoder passwordEncoder;
-  String roleRegex;
-
-  public MyUserController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          String roleRegex) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.roleRegex = roleRegex;
+  RegisterService registerService;
+  public MyUserController(RegisterService registerService) {
+    this.registerService = registerService;
   }
 
 
-  @PostMapping("/signup/{role}")
-  ResponseEntity<Void> createUser(@Valid @RequestBody MyUserRequest user,
-                                  @PathVariable("role") String role) {
 
-    if (role.matches(roleRegex)) {
-      Optional<MyUser> myUser = userRepository.findMyUserByUsernameOrEmail(user.username(), user.email());
-      if (myUser.isPresent()) {
-        return ResponseEntity.badRequest().build();
+  @PostMapping(value = "/signup/{role}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Void> createUserFromJson(@Valid @RequestBody MyUserRequest user,
+                                                 @PathVariable("role") String role){
 
-      }
-      else{
-        MyUser myUserEntity = new MyUser();
-        myUserEntity.setUsername(user.username());
-        myUserEntity.setEmail(user.email());
-        myUserEntity.setPassword(passwordEncoder.encode(user.password()));
-        myUserEntity.setRole(role);
-        userRepository.save(myUserEntity);
-        return ResponseEntity.ok().build();
-      }
+    registerService.registerUser(user,role);
+    return ResponseEntity.ok().build();
+
+  }
+  @PostMapping(value = "/signup/{role}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ResponseEntity<Void> createUserFromForm(@Valid MyUserRequest user,
+                                                 @PathVariable("role") String role) {
+
+    registerService.registerUser(user, role);
+    return ResponseEntity.ok().build();
+  }
 
 
-    }
-    else{
-      return ResponseEntity.badRequest().build();
-    }
+  @ExceptionHandler({BadRoleException.class,UserExistsException.class})
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleHttpServerErrorException(Throwable ex) {
+    return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+  }
 
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getBindingResult().getFieldError().getDefaultMessage());
+  }
+
+  public record ErrorResponse(int status, String message) {
   }
 }

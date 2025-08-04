@@ -65,10 +65,14 @@ public class SecurityConfig {
         .httpBasic(Customizer.withDefaults())
         .formLogin(form -> {
           form.loginPage("/login").permitAll();
+          form.successHandler((request, response, success) -> {
+            response.setStatus(202);
+          });
         })
         .authorizeHttpRequests(req -> {
-          req.requestMatchers("/login", "/signup").permitAll();
+          req.requestMatchers("/login", "/signup/**","/signup").permitAll();
 //            req.requestMatchers("")
+          req.requestMatchers("/data").authenticated();
           req.anyRequest().authenticated();
         }).build();
 
