@@ -17,4 +17,32 @@ psql -U user -d rentfriend -p 5433
 ## Useful wesites
 > https://www.conventionalcommits.org/en/v1.0.0/
 
+# API for Radek
+
+## Authentication
+
+### Signup
+Creating account
+* **URL** `/signup/{role} , role = {"SELLER","BUYER"}`
+* **METHOD** `POST`
+#### Params
+* `username`
+* `email`
+* `password`
+
+**Content type** : **json** or **x-www-form-urlencoded**
+
+#### Success Response(`200 OK`)
+
+### Signup
+Logging 
+* **URL** `/login`
+* **METHOD** `POST`
+
+#### Params
+* `username`
+* `password`
+
+#### Success Response(`202 ACCEPTED`)
+Returns session cookie
 
