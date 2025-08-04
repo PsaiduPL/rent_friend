@@ -53,7 +53,7 @@ public class LoginTest {
 
   }
   @Test
-  void shouldReturnOkAfterLogin(){
+  void shouldReturnAcceptedAfterLogin(){
     webTestClient.post().uri("/login")
 
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
