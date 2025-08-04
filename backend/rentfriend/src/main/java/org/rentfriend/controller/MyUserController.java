@@ -2,6 +2,7 @@ package org.rentfriend.controller;
 
 
 import jakarta.validation.Valid;
+import org.rentfriend.dto.UserDTO;
 import org.rentfriend.entity.MyUser;
 import org.rentfriend.exception.BadRoleException;
 import org.rentfriend.exception.UserExistsException;
@@ -16,17 +17,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Locale;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
 public class MyUserController {
-  RegisterService registerService;
-  public MyUserController(RegisterService registerService) {
+  final RegisterService registerService;
+  final UserRepository userRepository;
+  public MyUserController(RegisterService registerService,
+                          UserRepository userRepository) {
     this.registerService = registerService;
+    this.userRepository = userRepository;
   }
-
+  @GetMapping("/user/details")
+  ResponseEntity<UserDTO> getUserDetails(Principal principal){
+    Optional<MyUser> user = userRepository.findMyUserByUsername(principal.getName());
+    if(user.isPresent()){
+      UserDTO userDTO = new UserDTO(user.get().getUsername(),user.get().getEmail(),user.get().getRole());
+      return ResponseEntity.ok(userDTO);
+    }else{
+      return ResponseEntity.notFound().build();
+    }
+  }
 
 
   @PostMapping(value = "/signup/{role}", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -67,11 +67,13 @@ public class SecurityConfig {
           form.loginPage("/login").permitAll();
           form.successHandler((request, response, success) -> {
             response.setStatus(202);
+
           });
         })
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/login", "/signup/**","/signup").permitAll();
 //            req.requestMatchers("")
+          req.requestMatchers("user/details").authenticated();
           req.requestMatchers("/data").authenticated();
           req.anyRequest().authenticated();
         }).build();

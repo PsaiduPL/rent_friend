@@ -59,7 +59,7 @@ public class LoginTest {
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
         .body(BodyInserters.fromFormData(MultiValueMap.fromSingleValue(Map.of("username", "user",
             "password", "user"))))
-        .exchange().expectStatus().isFound();
+        .exchange().expectStatus().isAccepted();
   }
 }
 
