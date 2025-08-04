@@ -1,11 +1,13 @@
 package org.rentfriend.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.Fetch;
 
 @Entity
 @Table(name = "users")
@@ -42,21 +44,26 @@ public class MyUser {
   @Column(
       name = "role",
       nullable = false
+
   )
   @Size(min = 1, max = 20)
   @NotBlank
 
   String role;
 
+  //@JsonIgnore
+  @OneToOne(mappedBy = "user")
+  Profile profile;
   public MyUser() {
   }
 
-  public MyUser(Long id, String username, String email, String password, String role) {
+  public MyUser(Long id, String username, String email, String password, String role,Profile profile) {
     this.id = id;
     this.username = username;
     this.email = email;
     this.password = password;
     this.role = role;
+    this.profile = profile;
   }
 
   public Long getId() {
@@ -97,5 +104,13 @@ public class MyUser {
 
   public void setRole(String role) {
     this.role = role;
+  }
+
+  public Profile getProfile() {
+    return profile;
+  }
+
+  public void setProfile(Profile profile) {
+    this.profile = profile;
   }
 }

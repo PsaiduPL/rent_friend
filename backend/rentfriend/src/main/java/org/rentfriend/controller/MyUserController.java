@@ -35,7 +35,7 @@ public class MyUserController {
   ResponseEntity<UserDTO> getUserDetails(Principal principal){
     Optional<MyUser> user = userRepository.findMyUserByUsername(principal.getName());
     if(user.isPresent()){
-      UserDTO userDTO = new UserDTO(user.get().getUsername(),user.get().getEmail(),user.get().getRole());
+      UserDTO userDTO = new UserDTO(user.get().getUsername(),user.get().getEmail(),user.get().getRole(),user.get().getProfile());
       return ResponseEntity.ok(userDTO);
     }else{
       return ResponseEntity.notFound().build();
