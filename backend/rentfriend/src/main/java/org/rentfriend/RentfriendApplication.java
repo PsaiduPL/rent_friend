@@ -1,6 +1,6 @@
 package org.rentfriend;
 
-import org.rentfriend.domain.MyUser;
+import org.rentfriend.entity.MyUser;
 import org.rentfriend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,7 +21,7 @@ public class RentfriendApplication {
 			myUser.setUsername("admin");
 			myUser.setPassword("admin");
 			myUser.setEmail("admin@gmail.com");
-
+			myUser.setRole("ADMIN");
 			userRepository.save(myUser);
 
 
