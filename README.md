@@ -34,6 +34,17 @@ Creating account
 
 #### Success Response(`200 OK`)
 
+#### Failure Response(`400 Bad Request`)
+Response params
+* `status`
+* `message` - reason why your request is bad
+```json
+{
+    "status": 400,
+    "message": "User with this email/username already exists"
+}
+
+```
 ### Signup
 Logging 
 * **URL** `/login`
@@ -46,4 +57,16 @@ Logging
 
 #### Success Response(`202 ACCEPTED`)
 Returns session cookie
+#### Failure Responses
+(`404 NOT FOUND`)
+Response params
+* `status`
+* `message`
+```json
+{
+    "message": "Bad credentials",
+    "status": 404
+}
+```
+
 
