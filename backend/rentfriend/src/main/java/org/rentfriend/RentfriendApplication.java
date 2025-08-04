@@ -34,6 +34,7 @@ public class RentfriendApplication {
 			profile.setUser(u);
 			profile.setDescription("Young lady from warsaw");
 			profile.setCity("WARSAW");
+			profile.setName("Hot pawel123");
 			profileRepository.save(profile);
 
 		};
