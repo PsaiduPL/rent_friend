@@ -1,6 +1,7 @@
 package org.rentfriend.security;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -17,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -67,6 +69,13 @@ public class SecurityConfig {
           form.loginPage("/login").permitAll();
           form.successHandler((request, response, success) -> {
             response.setStatus(202);
+
+          });
+          form.failureHandler((request, response, exception) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            response.setStatus(404);
+            response.getOutputStream().println(mapper.writeValueAsString(Map.of("message", exception.getMessage(),
+                "status",404)));
 
           });
         })

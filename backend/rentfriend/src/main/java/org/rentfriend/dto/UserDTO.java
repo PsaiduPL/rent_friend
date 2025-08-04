@@ -1,4 +1,6 @@
 package org.rentfriend.dto;
 
-public record UserDTO(String username,String email,String role) {
+import org.rentfriend.entity.Profile;
+
+public record UserDTO(String username, String email, String role, Profile profile) {
 }
