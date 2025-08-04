@@ -39,6 +39,7 @@ Logging
 * **URL** `/login`
 * **METHOD** `POST`
 
+**Content type** : `x-www-form-urlencoded`
 #### Params
 * `username`
 * `password`
