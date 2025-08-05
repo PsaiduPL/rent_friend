@@ -17,33 +17,25 @@ public class MyUser {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @Column(nullable = false,
-      unique = true,
-      name = "username"
+  @Column(nullable = false, unique = true, name = "username"
   )
   @NotBlank
   @Size(min = 1, max = 50)
   String username;
 
-  @Column(nullable = false,
-      unique = false,
-      name = "email"
+  @Column(nullable = false, unique = false, name = "email"
   )
   @Size(min = 1, max = 100)
   @NotBlank
   @Email
   String email;
 
-  @Column(
-      name = "password",
-      nullable = false
+  @Column(name = "password", nullable = false
   )
   @NotBlank
   String password;
 
-  @Column(
-      name = "role",
-      nullable = false
+  @Column(name = "role", nullable = false
 
   )
   @Size(min = 1, max = 20)

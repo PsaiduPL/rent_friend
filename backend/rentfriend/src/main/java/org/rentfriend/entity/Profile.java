@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "profiles")
 @AllArgsConstructor
@@ -29,7 +31,6 @@ public class Profile {
 
   @Column(nullable = false
   ,columnDefinition = "INTEGER")
-//TODO zamien ten typ jakos na integer a nie small int
   Integer age;
   @JsonIgnore
   @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
@@ -37,4 +38,20 @@ public class Profile {
       nullable = false, insertable = true, updatable = false
       , unique = true)
   MyUser user;
+
+  @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "profile_interest",
+      joinColumns = {
+          @JoinColumn(name = "profile_id")
+      },
+      inverseJoinColumns ={
+          @JoinColumn(name = "interest_id")
+      }
+
+  )
+  List<Interest> interestList;
+
+  @OneToMany(mappedBy ="profile",cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
+  List<Offer> offerList;
 }
