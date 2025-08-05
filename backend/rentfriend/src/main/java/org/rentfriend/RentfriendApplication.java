@@ -1,18 +1,13 @@
 package org.rentfriend;
 
-import org.rentfriend.entity.Interest;
-import org.rentfriend.entity.MyUser;
-import org.rentfriend.entity.Offer;
-import org.rentfriend.entity.Profile;
-import org.rentfriend.repository.InterestRepository;
-import org.rentfriend.repository.OfferRepository;
-import org.rentfriend.repository.ProfileRepository;
-import org.rentfriend.repository.UserRepository;
+import org.rentfriend.entity.*;
+import org.rentfriend.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
@@ -31,7 +26,8 @@ public class RentfriendApplication {
                          ProfileRepository profileRepository
       , PasswordEncoder passwordEncoder,
                          InterestRepository interestRepository,
-                         OfferRepository offerRepository) {
+                         OfferRepository offerRepository,
+                         BodyParameterRepository bodyParameterRepository) {
     return args -> {
       MyUser myUser = new MyUser();
       myUser.setUsername("admin");
@@ -50,13 +46,21 @@ public class RentfriendApplication {
       List<Interest> interestList = interestRepository.findAll(Pageable.ofSize(2)).getContent();
       profile.setInterestList(interestList);
 
-
       Offer offer = new Offer();
       offer.setTitle("Przejscie na spacer");
       offer.setDescription("Tylko w godzinach 17 - 20");
       offer.setPricePerHour(BigDecimal.valueOf(50.5));
       profile.setOfferList(List.of(offer));
       offer.setProfile(profile);
+
+
+      BodyParameter bodyParameter = new BodyParameter();
+      bodyParameter.setHeight(178.5);
+      bodyParameter.setWeight(75.2);
+      bodyParameter.setProfile(profile);
+      bodyParameterRepository.save(bodyParameter);
+
+      profile.setBodyParameter(bodyParameter);
       profileRepository.save(profile);
       //offerRepository.save(offer);
 

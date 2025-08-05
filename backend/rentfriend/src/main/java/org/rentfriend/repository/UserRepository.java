@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface UserRepository  extends JpaRepository<MyUser,Long> {
 
   Optional<MyUser> findMyUserByUsername(String username);
-
+  MyUser findTopMyUserByUsername(String username);
   Optional<MyUser> findMyUserByUsernameOrEmail(@NotBlank @Size(min = 1, max = 50) String username,String email);
 
   Optional<MyUser> findTopByUsernameOrEmailAndRole(String username, String email, String role);
