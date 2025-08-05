@@ -28,9 +28,9 @@ public class Profile {
   String city;
 
   @Column(nullable = false
-  ,columnDefinition = "SMALLINT")
-
-  Short age;
+  ,columnDefinition = "INTEGER")
+//TODO zamien ten typ jakos na integer a nie small int
+  Integer age;
   @JsonIgnore
   @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id",

@@ -12,7 +12,7 @@ CREATE TABLE users(
 CREATE TABLE profiles
 (
     id   BIGSERIAL PRIMARY KEY ,
-    age  smallint NOT NULL,
+    age  integer NOT NULL,
     city VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     name VARCHAR(255) NOT NULL,
