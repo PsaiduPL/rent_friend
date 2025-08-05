@@ -30,7 +30,7 @@ public class RentfriendApplication {
 			MyUser u = userRepository.save(myUser);
 
 			Profile profile = new Profile();
-			profile.setAge(18);
+			profile.setAge((short)15);
 			profile.setUser(u);
 			profile.setDescription("Young lady from warsaw");
 			profile.setCity("WARSAW");

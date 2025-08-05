@@ -27,9 +27,10 @@ public class Profile {
   @Column(nullable = false)
   String city;
 
-  @Column(nullable = false)
+  @Column(nullable = false
+  ,columnDefinition = "SMALLINT")
 
-  Integer age;
+  Short age;
   @JsonIgnore
   @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id",

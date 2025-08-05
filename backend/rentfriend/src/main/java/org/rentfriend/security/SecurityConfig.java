@@ -82,7 +82,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/login", "/signup/**","/signup").permitAll();
 //            req.requestMatchers("")
-          req.requestMatchers("user/details").authenticated();
+          req.requestMatchers("/user/details").authenticated();
           req.requestMatchers("/data").authenticated();
           req.anyRequest().authenticated();
         }).build();
