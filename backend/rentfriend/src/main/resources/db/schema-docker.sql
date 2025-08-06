@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS profiles
     description TEXT         NOT NULL,
     city        VARCHAR(255) NOT NULL,
     age         INT          NOT NULL,
+    gender VARCHAR(20) NOT NULL,
     user_id     BIGINT       NOT NULL,
     CONSTRAINT pk_profiles PRIMARY KEY
         (

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(exclude = "offerList")
 public class Profile {
 
   @Id
@@ -32,6 +34,11 @@ public class Profile {
   @Column(nullable = false
   ,columnDefinition = "INTEGER")
   Integer age;
+
+  @Column(nullable =false,
+  name = "gender")
+  String gender;
+
   @JsonIgnore
   @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id",

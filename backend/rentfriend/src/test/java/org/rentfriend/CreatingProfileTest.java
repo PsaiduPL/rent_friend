@@ -2,6 +2,9 @@ package org.rentfriend;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.entity.BodyParameter;
 import org.rentfriend.entity.Interest;
@@ -26,8 +29,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("docker")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -87,10 +93,12 @@ public class CreatingProfileTest {
             """,
         "Kraków",
         21,
+        "male",
         List.of(
             new InterestRequest(1L),
             new InterestRequest(2L)
         ),
+
     null);
     FluxExchangeResult<Profile> profile = webTestClient.post().uri("/profile")
         .accept(MediaType.APPLICATION_JSON)
@@ -120,6 +128,7 @@ public class CreatingProfileTest {
             """,
         "Kraków",
         21,
+        "male",
         List.of(
             new InterestRequest(1L),
             new InterestRequest(2L)
@@ -131,7 +140,7 @@ public class CreatingProfileTest {
         .exchange()
         .expectStatus().isCreated().returnResult(new ParameterizedTypeReference<Profile>() {});
     URI location = profile.getResponseHeaders().getLocation();
-    System.out.println("LOCATION "+location);;
+    System.out.println("LOCATION "+location);
     webTestClient.get().uri(location.toString())
         .exchange()
         .expectStatus().isOk().expectBody(ProfileDTO.class).value(
@@ -142,8 +151,112 @@ public class CreatingProfileTest {
               assertThat(p.description()).isEqualTo(profileRequest.description());
               assertThat(p.bodyParameter().height()).isEqualTo(profileRequest.bodyParameter().height());
               assertThat(p.bodyParameter().weight()).isEqualTo(profileRequest.bodyParameter().weight());
+              assertThat(p.gender()).isEqualTo(profileRequest.gender());
+            }
+        );
+  }
+  @Test
+  void shouldReturnNotFoundForNonExistentProfile() {
+    webTestClient.get().uri("/profile/99999")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound();
+  }
+  @Test
+  void shouldReturnBadRequestWhenCreatingProfileWithInvalidData() {
+    // Tworzymy request z niepoprawnymi danymi
+    ProfileRequest invalidProfileRequest = new ProfileRequest(
+        "2", // Puste imię - nie powinno przejść walidacji
+        "Valid description",
+        "City",
+        -25, // Ujemny wiek - nie powinno przejść walidacji
+        "male",
+        null,
+        null
+    );
+
+    webTestClient.post().uri("/profile")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(invalidProfileRequest)
+        .exchange()
+        .expectStatus().isBadRequest().expectBody(Map.class).value(
+            response -> {
+              System.out.println(response.get("message").toString());
 
             }
         );
-  }//TODO ogarnij wiecej testow na tworzenie profilu i sprawdz czy cala logika ma sens
+  }
+
+  @Test
+  void shouldReturnUnauthorizedWhenCreatingProfileWithoutAuthentication() {
+    ProfileRequest profileRequest = new ProfileRequest("Anonymous", "Desc", "Gdańsk", 40, "female", null, null);
+    WebTestClient unauthenticatedWebTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
+    unauthenticatedWebTestClient.post().uri("/profile")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(profileRequest)
+        .exchange()
+        .expectStatus().isUnauthorized();
+  }
+  @ParameterizedTest
+  @MethodSource("provideInvalidProfileRequests")
+  void shouldReturnBadRequestForVariousInvalidProfileData(ProfileRequest invalidRequest, String expectedErrorFragment) {
+    webTestClient.post().uri("/profile")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(invalidRequest)
+        .exchange()
+        .expectStatus().isBadRequest()
+        .expectBody(Map.class).value(response -> {
+          // Wypisujemy całą odpowiedź, aby ułatwić debugowanie w razie problemów
+          System.out.println("Validation response for input " + invalidRequest + ": " + response);
+          String allMessages = response.toString();
+          assertThat(allMessages).contains(expectedErrorFragment);
+        });
+  }
+
+  /**
+   * Dostawca danych dla sparametryzowanego testu walidacji.
+   * Zwraca strumień argumentów, gdzie każdy argument to:
+   * 1. Niepoprawny obiekt ProfileRequest
+   * 2. Oczekiwany fragment komunikatu błędu
+   */
+  private static Stream<Arguments> provideInvalidProfileRequests() {
+    // Poprawne dane, które będziemy "psuć" w każdym przypadku testowym
+    String validName = "Jan Kowalski";
+    String validDescription = "Ciekawy opis profilu.";
+    String validCity = "Warszawa";
+    Integer validAge = 25;
+    String validGender = "male";
+    List<InterestRequest> validInterests = List.of(new InterestRequest(1L));
+
+    return Stream.of(
+        // --- Walidacja pola 'name' ---
+        Arguments.of(new ProfileRequest(null, validDescription, validCity, validAge, validGender, validInterests, null), "name null"),
+        Arguments.of(new ProfileRequest("", validDescription, validCity, validAge, validGender, validInterests, null), "name cannot be blank"),
+        Arguments.of(new ProfileRequest("  ", validDescription, validCity, validAge, validGender, validInterests, null), "name cannot be blank"),
+        Arguments.of(new ProfileRequest("a".repeat(51), validDescription, validCity, validAge, validGender, validInterests, null), "name max 50 characters"),
+
+        // --- Walidacja pola 'description' ---
+        Arguments.of(new ProfileRequest(validName, null, validCity, validAge, validGender, validInterests, null), "description cannot be empty"),
+        Arguments.of(new ProfileRequest(validName, "", validCity, validAge, validGender, validInterests, null), "description cannot be empty"),
+        Arguments.of(new ProfileRequest(validName, "a".repeat(1501), validCity, validAge, validGender, validInterests, null), "description max 1500 characters"),
+
+        // --- Walidacja pola 'city' ---
+        Arguments.of(new ProfileRequest(validName, validDescription, null, validAge, validGender, validInterests, null), "city cannot be empty"),
+        Arguments.of(new ProfileRequest(validName, validDescription, "", validAge, validGender, validInterests, null), "city cannot be empty"),
+        Arguments.of(new ProfileRequest(validName, validDescription, "a".repeat(151), validAge, validGender, validInterests, null), "size must be between 0 and 150"),
+
+        // --- Walidacja pola 'age' ---
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, 17, validGender, validInterests, null), "must be greater than or equal to 18"), // Lub dokładny komunikat "must be greater than or equal to 18"
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, 101, validGender, validInterests, null), "must be less than or equal to 100}"), // Lub dokładny komunikat "must be less than or equal to 100"
+
+        // --- Walidacja pola 'gender' ---
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, validAge, null, validInterests, null), "must not be null"),
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, validAge, "", validInterests, null), "must not be blank"),
+
+        // --- Walidacja pola 'interestList' ---
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, validAge, validGender, null, null), "interests cannot be empty"),
+        Arguments.of(new ProfileRequest(validName, validDescription, validCity, validAge, validGender, Collections.emptyList(), null), "must not be empty")
+    );
+  }
 }
+

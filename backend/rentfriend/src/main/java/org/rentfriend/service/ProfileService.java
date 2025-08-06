@@ -2,20 +2,26 @@ package org.rentfriend.service;
 
 
 import org.rentfriend.dto.BodyParameterDTO;
+import org.rentfriend.dto.InterestDTO;
 import org.rentfriend.dto.ProfileDTO;
-import org.rentfriend.entity.BodyParameter;
-import org.rentfriend.entity.MyUser;
-import org.rentfriend.entity.Profile;
+import org.rentfriend.entity.*;
 import org.rentfriend.exception.ProfileAlreadyExistsException;
 import org.rentfriend.exception.ProfileNotFoundException;
 import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
+import org.rentfriend.requestData.BodyParameterRequest;
 import org.rentfriend.requestData.ProfileRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +30,7 @@ public class ProfileService {
   final UserRepository userRepository;
   final ProfileRepository profileRepository;
   final UriComponentsBuilder ucb;
+
   public ProfileService(UserRepository userRepository, ProfileRepository profileRepository,
                         UriComponentsBuilder ucb) {
     this.userRepository = userRepository;
@@ -31,38 +38,66 @@ public class ProfileService {
     this.ucb = ucb;
 
   }
+  @Transactional
+  public List<ProfileDTO> getAllSellerProfiles(Pageable pageable) {
+    Page<ProfileDTO> profiles =  profileRepository.findProfilesByUser_role("SELLER",PageRequest.of(
+        pageable.getPageNumber(),
+        pageable.getPageSize(),
+        pageable.getSort())).map(profile->mapProfile(profile));
+    return profiles.getContent();
+  }
+
+
+  @Transactional
   public ProfileDTO createProfile(ProfileRequest profileRequest
-      , Principal principal){
+      , Principal principal) {
 
     MyUser myUser = userRepository.findTopMyUserByUsername(principal.getName());
-    if(profileRepository.findProfileByUser_Id(myUser.getId()).isPresent()){
+    if (profileRepository.findProfileByUser_Id(myUser.getId()).isPresent()) {
       throw new ProfileAlreadyExistsException("Profile already exists");
     }
     Profile profile = new Profile();
     profile.setUser(myUser);
     profile.setName(profileRequest.name());
     profile.setDescription(profileRequest.description());
-    profile.setBodyParameter(new BodyParameter(null,profileRequest.bodyParameter().height(),
-        profileRequest.bodyParameter().weight(),profile));
+    profile.setGender(profileRequest.gender());
+    profile.setInterestList(profileRequest.interestList().stream().map(a->
+        new Interest(a.id(),null,null)).toList());
+    Optional<BodyParameterRequest> bodyParameterRequest = Optional.ofNullable(profileRequest.bodyParameter());
+
+    bodyParameterRequest.ifPresent(bodyParameterRequest1 -> profile.setBodyParameter(new BodyParameter(null, bodyParameterRequest1.height(),
+        bodyParameterRequest1.weight(), profile)));
+
     profile.setCity(profileRequest.city());
     profile.setAge(profileRequest.age());
     Profile created = profileRepository.save(profile);
 
 
-
-
     return mapProfile(created);
   }
-  public ProfileDTO findProfileById(Long id){
-    Optional<Profile> profile =  profileRepository.findById(id);
 
-    if(profile.isPresent()){
+  public ProfileDTO findProfileById(Long id) {
+    Optional<Profile> profile = profileRepository.findById(id);
+
+    if (profile.isPresent()) {
       return mapProfile(profile.get());
     }
     throw new ProfileNotFoundException("Profile not found");
 
   }
-  ProfileDTO mapProfile(Profile profile){
+  public List<Offer> findOffersByProfileId(Long id){
+    return profileRepository.findById(id).map(Profile::getOfferList).get();
+  }
+
+  ProfileDTO mapProfile(Profile profile) {
+    BodyParameterDTO body = null;
+    if (profile.getBodyParameter() != null) {
+      body = new BodyParameterDTO(profile.getBodyParameter().getHeight(),
+          profile.getBodyParameter().getWeight());
+    }
+//    }else{
+//      body = new BodyParameterDTO(180.0,80.0);
+//    }
     ProfileDTO profileDTO = new ProfileDTO(
         profile.getId(),
         profile.getUser().getRole(),
@@ -70,8 +105,12 @@ public class ProfileService {
         profile.getAge(),
         profile.getCity(),
         profile.getDescription(),
-        new BodyParameterDTO(profile.getBodyParameter().getHeight(),
-            profile.getBodyParameter().getWeight())
+        profile.getGender(),
+        body,
+        profile.getInterestList().stream().map(i->{
+          return new InterestDTO(i.getId(), i.getInterest());
+        }).toList()
+
     );
     return profileDTO;
   }

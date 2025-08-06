@@ -23,7 +23,7 @@ public class Interest {
   String interest;
 
 
-  @ManyToMany(mappedBy = "interestList",fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "interestList", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
       @JsonIgnore
   List<Profile> profileList;
 
