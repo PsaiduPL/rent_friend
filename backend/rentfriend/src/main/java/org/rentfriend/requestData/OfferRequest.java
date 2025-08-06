@@ -14,4 +14,6 @@ public record OfferRequest(
     @Min(1)
     @Max(99999)
     Double pricePerHour) {
+
+
 }

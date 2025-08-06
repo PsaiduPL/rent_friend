@@ -11,6 +11,7 @@ import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
 import org.rentfriend.requestData.OfferRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -31,7 +32,7 @@ public class OfferService {
     this.userRepository = userRepository;
   }
 
-  public OfferDTO createOffer(Long profileId, OfferRequest offer){
+  public OfferDTO createOffer(Long profileId, OfferRequest offer) {
     Offer offerDB = new Offer();
     Profile profileDB = new Profile();
     profileDB.setId(profileId);
@@ -43,26 +44,53 @@ public class OfferService {
     return mapOffer(offerRepository.save(offerDB));
 
   }
-  public List<OfferDTO> findOffersByProfileId(Long profileId){
 
-      Optional<Profile> profileDB = profileRepository.findById(profileId);
-      if(profileDB.isPresent()){
-        var profile = profileDB.get();
-        return profile.getOfferList().stream().map(o->mapOffer(o)).toList();
-      }
-      throw new ProfileNotFoundException("Profile not found");
+  @Transactional
+  public List<OfferDTO> findOffersByProfileId(Long profileId) {
+
+    Optional<Profile> profileDB = profileRepository.findById(profileId);
+    if (profileDB.isPresent()) {
+      var profile = profileDB.get();
+      return profile.getOfferList().stream().map(o -> mapOffer(o)).toList();
     }
-    public OfferDTO findOfferByIdAndUser(Long offerId, Principal principal){
+    throw new ProfileNotFoundException("Profile not found");
+  }
+
+  @Transactional
+  public OfferDTO findOfferByIdAndUser(Long offerId, Principal principal) {
     var usr = userRepository.findTopMyUserByUsername(principal.getName());
-    Optional<Offer> offerDB = offerRepository.findByIdAndProfile_Id(offerId,usr.getProfile().getId());
-    if(offerDB.isPresent()){
+    Optional<Offer> offerDB = offerRepository.findByIdAndProfile_Id(offerId, usr.getProfile().getId());
+    if (offerDB.isPresent()) {
       var offer = offerDB.get();
       return mapOffer(offer);
     }
     throw new OfferNotFoundException("Offer doesnt exists");
-    }
+  }
 
-  OfferDTO mapOffer(Offer offer){
+  @Transactional
+  public void deleteOfferByIdAndUser(Long offerId, Principal principal) {
+    var usr = userRepository.findTopMyUserByUsername(principal.getName());
+    Optional<Offer> offerDB = offerRepository.findByIdAndProfile_Id(offerId, usr.getProfile().getId());
+    if (offerDB.isPresent()) {
+      offerRepository.delete(offerDB.get());
+      return;
+    }
+    throw new OfferNotFoundException("Offer doesnt exists");
+  }
+
+  @Transactional
+  public void updateOffer(Long id, OfferRequest offerRequest,Principal principal) {
+    var usr = userRepository.findTopMyUserByUsername(principal.getName());
+    Optional<Offer> offerDB = offerRepository.findByIdAndProfile_Id(id, usr.getProfile().getId());
+    if (offerDB.isPresent()) {
+    offerRepository.updateOffer(id,offerRequest.title(),offerRequest.description(),offerRequest.pricePerHour());
+    return;
+    }
+    throw new OfferNotFoundException("Offer doesnt exists");
+
+  }
+
+  OfferDTO mapOffer(Offer offer) {
     return new OfferDTO(offer.getId(),
         offer.getTitle(),
         offer.getDescription(),

@@ -1,7 +1,9 @@
 package org.rentfriend;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.rentfriend.dto.OfferDTO;
 import org.rentfriend.requestData.OfferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +89,60 @@ public class CreatingOffersTest {
         }
     );
   }
+
+  @Test
+  void shouldCreateNewOfferAndDelete(){
+    OfferRequest offerRequest = new OfferRequest("przejade sie rowerem",
+        "czesc przejechalbym sie rowerem wzludz wisly",20.0);
+
+    URI location  = webTestClient.post().uri("/profile/offers")
+        .bodyValue(offerRequest).exchange().expectStatus().isCreated().returnResult(Object.class).getResponseHeaders().getLocation();
+    System.out.println("uri ---------" + location);
+
+    webTestClient.delete().uri(location.toString()).exchange().expectStatus().isNoContent();
+
+    webTestClient.get().uri(location.toString()).exchange().expectStatus().isNotFound();
+  }
+  @Test
+  void shouldReturnNotFoundAfterDeletinNotExistingOffer(){
+
+    webTestClient.delete().uri("/profile/offers/999").exchange().expectStatus().isNotFound();
+
+  }
+  @Test
+  void shouldCreateOfferAndUpdateIt(){
+    OfferRequest offerRequest = new OfferRequest("przejade sie rowerem",
+        "czesc przejechalbym sie rowerem wzludz wisly",20.0);
+
+    URI location  = webTestClient.post().uri("/profile/offers")
+        .bodyValue(offerRequest).exchange().expectStatus().isCreated().returnResult(Object.class).getResponseHeaders().getLocation();
+    System.out.println("uri ---------" + location);
+
+    OfferRequest offerRequest1 = new OfferRequest("przejade sie szybko rowerem",offerRequest.description(),
+        offerRequest.pricePerHour());
+    webTestClient.put().uri(location.toString()).bodyValue(offerRequest1).exchange().expectStatus().isNoContent();
+
+    webTestClient.get().uri(location.toString()).exchange().expectStatus().isOk().expectBody(OfferDTO.class).value(
+        offer->{
+          assertThat(offer.title()).isEqualTo(offerRequest1.title());
+          assertThat(offer.description()).isEqualTo(offerRequest1.description());
+          assertThat(offer.pricePerHour()).isEqualTo(offerRequest1.pricePerHour());
+
+
+        }
+    );
+  }
+  @Test
+  void shouldReturnNotFoundAfterUpdateItBadId(){
+
+    OfferRequest offerRequest1 = new OfferRequest("przejade sie rowerem",
+        "czesc przejechalbym sie rowerem wzludz wisly",20.0);
+    webTestClient.put().uri("/profile/offers/9999").bodyValue(offerRequest1).exchange().expectStatus().isNotFound();
+
+
+  }
+  @ParameterizedTest
+  @MethodSource("provideInvalidOfferRequests")
   void shouldReturnBadRequestWhenCreatingOfferWithInvalidData(OfferRequest invalidRequest, String expectedErrorFragment) {
     webTestClient.post().uri("/profile/offers")
         .contentType(MediaType.APPLICATION_JSON)
@@ -108,21 +164,21 @@ public class CreatingOffersTest {
 
     return Stream.of(
         // --- Walidacja pola 'title' ---
-        Arguments.of(new OfferRequest(null, validDescription, validPrice), "NotNull"),
-        Arguments.of(new OfferRequest("", validDescription, validPrice), "NotBlank"),
-        Arguments.of(new OfferRequest("   ", validDescription, validPrice), "NotBlank"),
-        Arguments.of(new OfferRequest("a".repeat(251), validDescription, validPrice), "Size"),
+        Arguments.of(new OfferRequest(null, validDescription, validPrice), "must not be blank"),
+        Arguments.of(new OfferRequest("", validDescription, validPrice), "must not be blank"),
+        Arguments.of(new OfferRequest("   ", validDescription, validPrice), "must not be blank"),
+        Arguments.of(new OfferRequest("a".repeat(251), validDescription, validPrice), "size"),
 
         // --- Walidacja pola 'description' ---
-        Arguments.of(new OfferRequest(validTitle, null, validPrice), "NotNull"),
-        Arguments.of(new OfferRequest(validTitle, "", validPrice), "NotBlank"),
-        Arguments.of(new OfferRequest(validTitle, "   ", validPrice), "NotBlank"),
-        Arguments.of(new OfferRequest(validTitle, "za krótki", validPrice), "Size"), // description.length() < 10
-        Arguments.of(new OfferRequest(validTitle, "a".repeat(2501), validPrice), "Size"),
+        Arguments.of(new OfferRequest(validTitle, null, validPrice), "null"),
+        Arguments.of(new OfferRequest(validTitle, "", validPrice), "blank"),
+        Arguments.of(new OfferRequest(validTitle, "   ", validPrice), "blank"),
+        Arguments.of(new OfferRequest(validTitle, "za krótki", validPrice), "size"), // description.length() < 10
+        Arguments.of(new OfferRequest(validTitle, "a".repeat(2501), validPrice), "size"),
 
         // --- Walidacja pola 'pricePerHour' ---
-        Arguments.of(new OfferRequest(validTitle, validDescription, 0.0), "Min"),      // price < 1
-        Arguments.of(new OfferRequest(validTitle, validDescription, 100000.0), "Max") // price > 99999
+        Arguments.of(new OfferRequest(validTitle, validDescription, 0.0), "must be greater than or equal to "),      // price < 1
+        Arguments.of(new OfferRequest(validTitle, validDescription, 100000.0), "must be less than or equal to 99999") // price > 99999
     );
   }
 

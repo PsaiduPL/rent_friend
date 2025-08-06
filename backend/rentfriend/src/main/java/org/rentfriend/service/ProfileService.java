@@ -10,6 +10,7 @@ import org.rentfriend.exception.ProfileNotFoundException;
 import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
 import org.rentfriend.requestData.BodyParameterRequest;
+import org.rentfriend.requestData.OfferRequest;
 import org.rentfriend.requestData.ProfileRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,6 +86,7 @@ public class ProfileService {
     throw new ProfileNotFoundException("Profile not found");
 
   }
+
 
 
   public ProfileDTO mapProfile(Profile profile) {

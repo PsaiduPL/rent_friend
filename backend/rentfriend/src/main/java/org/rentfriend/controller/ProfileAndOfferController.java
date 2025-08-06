@@ -85,28 +85,45 @@ public class ProfileAndOfferController {
 
     var offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
 
-    return ResponseEntity.created( ucb.path("profile/offers/{id}")
+    return ResponseEntity.created(ucb.path("profile/offers/{id}")
         .buildAndExpand(offer.id())
         .toUri()).build();
 
   }
+
   @GetMapping("/offers")
   ResponseEntity<List<OfferDTO>> getOffers(Principal principal) {
     MyUser user = userRepository.findMyUserByUsername(principal.getName()).get();
-    var offers =offerService.findOffersByProfileId(user.getProfile().getId());
-    if(offers.isEmpty()) {
+    var offers = offerService.findOffersByProfileId(user.getProfile().getId());
+    if (offers.isEmpty()) {
       return ResponseEntity.noContent().build();
     }
     return ResponseEntity.ok(offers);
 
   }
-  @GetMapping("/offers/{offer_id}")
-  ResponseEntity<OfferDTO> getOffer(@PathVariable("offer_id") Long offerId,Principal principal) {
 
-    return ResponseEntity.ok(offerService.findOfferByIdAndUser(offerId,principal));
+  @GetMapping("/offers/{offer_id}")
+  ResponseEntity<OfferDTO> getOffer(@PathVariable("offer_id") Long offerId, Principal principal) {
+
+    return ResponseEntity.ok(offerService.findOfferByIdAndUser(offerId, principal));
 
   }
 
+  @DeleteMapping("/offers/{offer_id}")
+  ResponseEntity<Void> deleteOffer(@PathVariable("offer_id") Long offerId, Principal principal) {
+
+    offerService.deleteOfferByIdAndUser(offerId, principal);
+    return ResponseEntity.noContent().build();
+
+  }
+  //TODO zabezpiecz endpointy ofert tylko dla sprzedajacych
+  @PutMapping("/offers/{offer_id}")
+  ResponseEntity<Void> updateOffer(@PathVariable("offer_id") Long offerId,
+                                   Principal principal,
+                                   @RequestBody @Valid OfferRequest offerRequest) {
+    offerService.updateOffer(offerId,offerRequest,principal);
+    return ResponseEntity.noContent().build();
+  }
 
   @ExceptionHandler(ProfileAlreadyExistsException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
