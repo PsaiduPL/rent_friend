@@ -1,4 +1,4 @@
-package org.rentfriend.entity;
+package org.rentfriend.dto;
 
 public record OfferDTO(Long id,
                        String title,

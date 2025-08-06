@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.rentfriend.dto.ProfileDTO;
+import org.rentfriend.dto.ProfileDetailsDTO;
 import org.rentfriend.entity.BodyParameter;
 import org.rentfriend.entity.Interest;
 import org.rentfriend.entity.Profile;
@@ -109,13 +110,13 @@ public class CreatingProfileTest {
     System.out.println("LOCATION "+location);;
     webTestClient.get().uri(location.toString())
         .exchange()
-        .expectStatus().isOk().expectBody(Profile.class).value(
+        .expectStatus().isOk().expectBody(ProfileDetailsDTO.class).value(
             p ->{
-              assertThat(p.getAge()).isEqualTo(profileRequest.age());
-              assertThat(p.getName()).isEqualTo(profileRequest.name());
-              assertThat(p.getCity()).isEqualTo(profileRequest.city());
-              assertThat(p.getDescription()).isEqualTo(profileRequest.description());
-              assertThat(p.getBodyParameter()).isNull();
+              assertThat(p.profile().age()).isEqualTo(profileRequest.age());
+              assertThat(p.profile().name()).isEqualTo(profileRequest.name());
+              assertThat(p.profile().city()).isEqualTo(profileRequest.city());
+              assertThat(p.profile().description()).isEqualTo(profileRequest.description());
+              assertThat(p.profile().bodyParameter()).isNull();
 
             }
         );
@@ -143,15 +144,15 @@ public class CreatingProfileTest {
     System.out.println("LOCATION "+location);
     webTestClient.get().uri(location.toString())
         .exchange()
-        .expectStatus().isOk().expectBody(ProfileDTO.class).value(
+        .expectStatus().isOk().expectBody(ProfileDetailsDTO.class).value(
             p ->{
-              assertThat(p.age()).isEqualTo(profileRequest.age());
-              assertThat(p.name()).isEqualTo(profileRequest.name());
-              assertThat(p.city()).isEqualTo(profileRequest.city());
-              assertThat(p.description()).isEqualTo(profileRequest.description());
-              assertThat(p.bodyParameter().height()).isEqualTo(profileRequest.bodyParameter().height());
-              assertThat(p.bodyParameter().weight()).isEqualTo(profileRequest.bodyParameter().weight());
-              assertThat(p.gender()).isEqualTo(profileRequest.gender());
+              assertThat(p.profile().age()).isEqualTo(profileRequest.age());
+              assertThat(p.profile().name()).isEqualTo(profileRequest.name());
+              assertThat(p.profile().city()).isEqualTo(profileRequest.city());
+              assertThat(p.profile().description()).isEqualTo(profileRequest.description());
+              assertThat(p.profile().bodyParameter().height()).isEqualTo(profileRequest.bodyParameter().height());
+              assertThat(p.profile().bodyParameter().weight()).isEqualTo(profileRequest.bodyParameter().weight());
+              assertThat(p.profile().gender()).isEqualTo(profileRequest.gender());
             }
         );
   }

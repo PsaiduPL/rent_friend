@@ -2,11 +2,11 @@ package org.rentfriend.controller;
 
 
 import jakarta.validation.Valid;
-import org.rentfriend.dto.BodyParameterDTO;
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.dto.ProfileDetailsDTO;
 import org.rentfriend.entity.MyUser;
-import org.rentfriend.entity.Profile;
+import org.rentfriend.dto.OfferDTO;
+import org.rentfriend.exception.OfferNotFoundException;
 import org.rentfriend.exception.ProfileAlreadyExistsException;
 import org.rentfriend.exception.ProfileNotFoundException;
 import org.rentfriend.repository.ProfileRepository;
@@ -15,11 +15,8 @@ import org.rentfriend.requestData.OfferRequest;
 import org.rentfriend.requestData.ProfileRequest;
 import org.rentfriend.service.OfferService;
 import org.rentfriend.service.ProfileService;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -27,25 +24,26 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/profile")
-public class ProfileController {
+public class ProfileAndOfferController {
   final UserRepository userRepository;
   final ProfileService profileService;
   final OfferService offerService;
   final UriComponentsBuilder ucb;
+  private final ProfileRepository profileRepository;
 
-  ProfileController(ProfileService profileService,
-                    ProfileRepository profileRepository,
-                    UriComponentsBuilder ucb,
-                    UserRepository userRepository,
-                    OfferService offerService) {
+  ProfileAndOfferController(ProfileService profileService,
+                            ProfileRepository profileRepository,
+                            UriComponentsBuilder ucb,
+                            UserRepository userRepository,
+                            OfferService offerService) {
     this.profileService = profileService;
     this.offerService = offerService;
     this.ucb = ucb;
     this.userRepository = userRepository;
+    this.profileRepository = profileRepository;
   }
 
 
@@ -54,7 +52,7 @@ public class ProfileController {
       , Principal principal) {
 
     ProfileDTO profile = profileService.createProfile(profileRequest, principal);
-    URI uri = ucb.path("/profile/{id}")
+    URI uri = ucb.path("/profiles/{id}")
         .buildAndExpand(profile.id())
         .toUri();
     return ResponseEntity.created(uri).build();
@@ -62,24 +60,50 @@ public class ProfileController {
   }
 
   @GetMapping()
-  ResponseEntity<List<ProfileDTO>> getProfiles(Pageable pageable) {
+  ResponseEntity<ProfileDetailsDTO> getProfile(Principal principal) {
+    var user = userRepository.findTopMyUserByUsername(principal.getName());
+    var profileDB = profileRepository.findProfileByUser_Id(user.getId());
+    if (profileDB.isPresent()) {
 
-    return ResponseEntity.ok(profileService.getAllSellerProfiles(pageable));
+      ProfileDTO profile = profileService.mapProfile(profileDB.get());
+      return ResponseEntity.ok(new ProfileDetailsDTO(
+              profile,
+              offerService.findOffersByProfileId(
+                  profile.id()
+              )
+          )
+      );
+    }
+    return ResponseEntity.notFound().build();
+
   }
 
-  @Transactional
-  @GetMapping("/{id}")
-  ResponseEntity<ProfileDetailsDTO> getProfile(@PathVariable Long id) {
 
-    return ResponseEntity.ok(new ProfileDetailsDTO(profileService.findProfileById(id), profileService.findOffersByProfileId(id)));
-  }
-
-  @PostMapping("/offer")
+  @PostMapping("/offers")
   ResponseEntity<Void> createOffer(Principal principal, @RequestBody @Valid OfferRequest offerRequest) {
     MyUser user = userRepository.findMyUserByUsername(principal.getName()).get();
 
     var offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
-    return ResponseEntity.ok().build();
+
+    return ResponseEntity.created( ucb.path("profile/offers/{id}")
+        .buildAndExpand(offer.id())
+        .toUri()).build();
+
+  }
+  @GetMapping("/offers")
+  ResponseEntity<List<OfferDTO>> getOffers(Principal principal) {
+    MyUser user = userRepository.findMyUserByUsername(principal.getName()).get();
+    var offers =offerService.findOffersByProfileId(user.getProfile().getId());
+    if(offers.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(offers);
+
+  }
+  @GetMapping("/offers/{offer_id}")
+  ResponseEntity<OfferDTO> getOffer(@PathVariable("offer_id") Long offerId,Principal principal) {
+
+    return ResponseEntity.ok(offerService.findOfferByIdAndUser(offerId,principal));
 
   }
 
@@ -91,9 +115,9 @@ public class ProfileController {
     return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
   }
 
-  @ExceptionHandler(ProfileNotFoundException.class)
+  @ExceptionHandler({ProfileNotFoundException.class, OfferNotFoundException.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ErrorResponse handleProfileNotFoundException(ProfileNotFoundException ex) {
+  public ErrorResponse handleProfileNotFoundException(Throwable ex) {
     return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
   }
 

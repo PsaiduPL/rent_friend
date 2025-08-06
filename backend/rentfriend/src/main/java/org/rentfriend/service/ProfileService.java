@@ -85,11 +85,9 @@ public class ProfileService {
     throw new ProfileNotFoundException("Profile not found");
 
   }
-  public List<Offer> findOffersByProfileId(Long id){
-    return profileRepository.findById(id).map(Profile::getOfferList).get();
-  }
 
-  ProfileDTO mapProfile(Profile profile) {
+
+  public ProfileDTO mapProfile(Profile profile) {
     BodyParameterDTO body = null;
     if (profile.getBodyParameter() != null) {
       body = new BodyParameterDTO(profile.getBodyParameter().getHeight(),

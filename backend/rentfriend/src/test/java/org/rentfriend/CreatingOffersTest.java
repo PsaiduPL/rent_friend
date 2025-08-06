@@ -1,7 +1,8 @@
 package org.rentfriend;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.rentfriend.requestData.MyUserRequest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.rentfriend.dto.OfferDTO;
 import org.rentfriend.requestData.OfferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -17,7 +18,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URI;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("docker")
@@ -70,5 +73,57 @@ public class CreatingOffersTest {
 
     OfferRequest offerRequest = new OfferRequest("przejade sie rowerem",
         "czesc przejechalbym sie rowerem wzludz wisly",20.0);
+
+    URI uri  = webTestClient.post().uri("/profile/offers")
+        .bodyValue(offerRequest).exchange().expectStatus().isCreated().returnResult(Object.class).getResponseHeaders().getLocation();
+    System.out.println("uri ---------" + uri);
+    webTestClient.get().uri(uri.toString()).exchange().expectStatus().isOk().expectBody(OfferDTO.class).value(
+        offer->{
+        assertThat(offer.title()).isEqualTo(offerRequest.title());
+        assertThat(offer.description()).isEqualTo(offerRequest.description());
+        assertThat(offer.pricePerHour()).isEqualTo(offerRequest.pricePerHour());
+
+
+        }
+    );
   }
+  void shouldReturnBadRequestWhenCreatingOfferWithInvalidData(OfferRequest invalidRequest, String expectedErrorFragment) {
+    webTestClient.post().uri("/profile/offers")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(invalidRequest)
+        .exchange()
+        .expectStatus().isBadRequest()
+        .expectBody(Map.class).value(response -> {
+          // Wypisanie odpowiedzi jest pomocne przy debugowaniu
+          System.out.println("Validation response for input " + invalidRequest + ": " + response);
+          String responseBodyAsString = response.toString();
+          assertThat(responseBodyAsString).contains(expectedErrorFragment);
+        });
+  }
+  private static Stream<Arguments> provideInvalidOfferRequests() {
+    // Poprawne dane, które będziemy modyfikować w każdym przypadku testowym
+    String validTitle = "Poprawny tytuł";
+    String validDescription = "To jest wystarczająco długi i poprawny opis oferty.";
+    Double validPrice = 150.0;
+
+    return Stream.of(
+        // --- Walidacja pola 'title' ---
+        Arguments.of(new OfferRequest(null, validDescription, validPrice), "NotNull"),
+        Arguments.of(new OfferRequest("", validDescription, validPrice), "NotBlank"),
+        Arguments.of(new OfferRequest("   ", validDescription, validPrice), "NotBlank"),
+        Arguments.of(new OfferRequest("a".repeat(251), validDescription, validPrice), "Size"),
+
+        // --- Walidacja pola 'description' ---
+        Arguments.of(new OfferRequest(validTitle, null, validPrice), "NotNull"),
+        Arguments.of(new OfferRequest(validTitle, "", validPrice), "NotBlank"),
+        Arguments.of(new OfferRequest(validTitle, "   ", validPrice), "NotBlank"),
+        Arguments.of(new OfferRequest(validTitle, "za krótki", validPrice), "Size"), // description.length() < 10
+        Arguments.of(new OfferRequest(validTitle, "a".repeat(2501), validPrice), "Size"),
+
+        // --- Walidacja pola 'pricePerHour' ---
+        Arguments.of(new OfferRequest(validTitle, validDescription, 0.0), "Min"),      // price < 1
+        Arguments.of(new OfferRequest(validTitle, validDescription, 100000.0), "Max") // price > 99999
+    );
+  }
+
 }
