@@ -59,6 +59,7 @@ public class ProfileAndOfferController {
 
   }
 
+
   @GetMapping()
   ResponseEntity<ProfileDetailsDTO> getProfile(Principal principal) {
     var user = userRepository.findTopMyUserByUsername(principal.getName());
@@ -74,18 +75,19 @@ public class ProfileAndOfferController {
           )
       );
     }
-    return ResponseEntity.notFound().build();
+    return ResponseEntity.noContent().build();
 
   }
 
 
+
   @PostMapping("/offers")
-  ResponseEntity<Void> createOffer(Principal principal, @RequestBody @Valid OfferRequest offerRequest) {
+  ResponseEntity<Void> createOffer(@RequestBody @Valid OfferRequest offerRequest,Principal principal) {
     MyUser user = userRepository.findMyUserByUsername(principal.getName()).get();
 
     var offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
 
-    return ResponseEntity.created(ucb.path("profile/offers/{id}")
+    return ResponseEntity.created(ucb.path("/profile/offers/{id}")
         .buildAndExpand(offer.id())
         .toUri()).build();
 

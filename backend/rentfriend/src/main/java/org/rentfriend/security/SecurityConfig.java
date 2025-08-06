@@ -84,7 +84,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/login", "/signup/**","/signup").permitAll();
 //            req.requestMatchers("")
-          req.requestMatchers("/profile").hasRole("BUYER");
+          req.requestMatchers("/profile").hasAnyRole("BUYER", "SELLER");
           req.requestMatchers("/profile/**").hasRole("SELLER");
           req.requestMatchers("/user/details").authenticated();
           req.requestMatchers("/data").authenticated();
