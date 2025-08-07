@@ -70,12 +70,12 @@ public class InitUserData {
     List<Interest> interestList1 = interestRepository.findAll(Pageable.ofSize(2)).getContent();
     profile1.setInterestList(interestList1);
 
-    Offer offer1 = new Offer();
-    offer1.setTitle("Przejscie na kino");
-    offer1.setDescription("Tylko w godzinach 16 - 20");
-    offer1.setPricePerHour(BigDecimal.valueOf(20.5));
-    profile1.setOfferList(List.of(offer1));
-    offer1.setProfile(profile1);
+//    Offer offer1 = new Offer();
+//    offer1.setTitle("Przejscie na kino");
+//    offer1.setDescription("Tylko w godzinach 16 - 20");
+//    offer1.setPricePerHour(BigDecimal.valueOf(20.5));
+//    profile1.setOfferList(List.of(offer1));
+//    offer1.setProfile(profile1);
 
 
     BodyParameter bodyParameter1 = new BodyParameter();
