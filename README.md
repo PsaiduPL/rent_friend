@@ -220,7 +220,8 @@ If profile doesnt exists
         "id": 1,
         "title": "Przejscie na spacer",
         "description": "Tylko w godzinach 17 - 20",
-        "pricePerHour": 50.5
+        "pricePerHour": 50.5,
+      "creationDate": "2025-08-7"
     }
 ]
 ```
@@ -253,7 +254,8 @@ If profile doesnt exists
         "id": 1,
         "title": "Przejscie na spacer",
         "description": "Tylko w godzinach 17 - 20",
-        "pricePerHour": 50.5
+        "pricePerHour": 50.5,
+        "creationDate": "2025-08-07"
     }
 
 ```

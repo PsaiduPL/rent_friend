@@ -97,7 +97,8 @@ public class OfferService {
     return new OfferDTO(offer.getId(),
         offer.getTitle(),
         offer.getDescription(),
-        offer.getPricePerHour().doubleValue());
+        offer.getPricePerHour().doubleValue(),
+        offer.getCreationDate());
   }
 
 

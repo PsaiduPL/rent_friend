@@ -3,10 +3,12 @@ package org.rentfriend.controller;
 
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.dto.ProfileDetailsDTO;
+import org.rentfriend.preview.ProfilePreview;
 import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
 import org.rentfriend.service.OfferService;
 import org.rentfriend.service.ProfileService;
+import org.rentfriend.service.ProfilesService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,24 +24,28 @@ import java.util.List;
 @RequestMapping("/profiles")
 public class ProfilesController {
   final UserRepository userRepository;
+  final ProfilesService profilesService;
   final ProfileService profileService;
   final OfferService offerService;
   final UriComponentsBuilder ucb;
 
-  ProfilesController(ProfileService profileService,
-                    ProfileRepository profileRepository,
-                    UriComponentsBuilder ucb,
-                    UserRepository userRepository,
-                    OfferService offerService) {
-    this.profileService = profileService;
+  ProfilesController(ProfilesService profilesService,
+                     ProfileRepository profileRepository,
+                     UriComponentsBuilder ucb,
+                     UserRepository userRepository,
+                     OfferService offerService,
+                     ProfileService profileService) {
+    this.profilesService = profilesService;
     this.offerService = offerService;
     this.ucb = ucb;
     this.userRepository = userRepository;
+    this.profileService = profileService;
   }
-  @GetMapping()
-  ResponseEntity<List<ProfileDTO>> getProfiles(Pageable pageable) {
 
-    return ResponseEntity.ok(profileService.getAllSellerProfiles(pageable));
+  @GetMapping()
+  ResponseEntity<List<ProfilePreview>> getProfiles(Pageable pageable) {
+
+    return ResponseEntity.ok(profilesService.getAllSellerProfiles(pageable));
   }
 
   @Transactional
