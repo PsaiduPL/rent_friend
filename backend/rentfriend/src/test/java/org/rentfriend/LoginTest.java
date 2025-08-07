@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
-@ActiveProfiles("docker_test")
+@ActiveProfiles("docker")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 
@@ -60,6 +60,13 @@ public class LoginTest {
         .body(BodyInserters.fromFormData(MultiValueMap.fromSingleValue(Map.of("username", "user",
             "password", "user"))))
         .exchange().expectStatus().isAccepted();
+  }
+  @Test
+  void shouldReturnNotFoundAfterLogin(){
+    webTestClient.post().uri("/login")
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .body(BodyInserters.fromFormData(MultiValueMap.fromSingleValue(Map.of("username","userxD",
+            "password", "user2")))).exchange().expectStatus().isNotFound();
   }
 }
 

@@ -46,7 +46,7 @@ public class MyUserController {
   @PostMapping(value = "/signup/{role}", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Void> createUserFromJson(@Valid @RequestBody MyUserRequest user,
                                                  @PathVariable("role") String role){
-
+   // System.out.println(STR."virtual ---------\{Thread.currentThread().isVirtual()}");
     registerService.registerUser(user,role);
     return ResponseEntity.ok().build();
 

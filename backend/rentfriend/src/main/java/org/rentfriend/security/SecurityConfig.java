@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
   final UserDetailsService userDetailsService;
@@ -82,7 +84,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(req -> {
           req.requestMatchers("/login", "/signup/**","/signup").permitAll();
 //            req.requestMatchers("")
-          req.requestMatchers("user/details").authenticated();
+          req.requestMatchers("/profile").hasAnyRole("BUYER", "SELLER");
+          req.requestMatchers("/profile/**").hasRole("SELLER");
+          req.requestMatchers("/user/details").authenticated();
           req.requestMatchers("/data").authenticated();
           req.anyRequest().authenticated();
         }).build();
