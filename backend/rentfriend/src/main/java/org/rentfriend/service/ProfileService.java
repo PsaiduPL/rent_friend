@@ -12,6 +12,7 @@ import org.rentfriend.repository.UserRepository;
 import org.rentfriend.requestData.BodyParameterRequest;
 import org.rentfriend.requestData.OfferRequest;
 import org.rentfriend.requestData.ProfileRequest;
+import org.rentfriend.requestData.ProfileUpdate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -75,6 +77,34 @@ public class ProfileService {
 
 
     return mapProfile(created);
+  }
+  @Transactional
+  public void updateProfile(ProfileRequest profileRequest, Principal principal) {
+    MyUser myUser = userRepository.findTopMyUserByUsername(principal.getName());
+    Optional<Profile> profileDB = profileRepository.findProfileByUser_Id(myUser.getId());
+    if (profileDB.isPresent()) {
+
+
+
+          var profile = profileDB.get();
+
+          profile.setName(profileRequest.name());
+          profile.setDescription(profileRequest.description());
+          profile.setGender(profileRequest.gender());
+          profile.setOfferList(profile.getOfferList());
+          profile.setCity(profileRequest.city());
+          profile.setAge(profileRequest.age());
+          BodyParameter bodyParameter = profile.getBodyParameter();
+          bodyParameter.setHeight(profileRequest.bodyParameter().height());
+          bodyParameter.setWeight(profileRequest.bodyParameter().weight());
+          profile.setBodyParameter(bodyParameter);
+
+          profile.setInterestList(profileRequest.interestList().stream().map(a->
+              new Interest(a.id(),null,null)).collect(Collectors.toList()));
+          profileRepository.save(profile);
+          return ;
+        }
+        throw new ProfileNotFoundException("Profile not found");
   }
 
   public ProfileDTO findProfileById(Long id) {

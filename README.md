@@ -151,6 +151,38 @@ Example
 If profile doesnt exists
 **Success Response(`NoContent` 204)**
 
+### Update your profile
+* **URL** `/profile`
+*  **METHOD** `PUT`
+
+#### Example request
+```json
+{
+    "name":"John Mielon", - max 50 char
+    "age":18, - 18 - 100
+    "city":"Krakow", - max 150 char
+    "description":"giga chad from cracow", - max 1500 char
+    "gender":"female", 
+    "bodyParameter":{
+        "height":190.5,
+        "weight":120.2
+    },
+    "interestList":[
+        {
+            "id":1
+        },
+        {
+            "id":2
+        }
+    ]
+}
+```
+#### `Remeber to leave the data you dont change, everything is updated`
+
+#### Success response (`NoContent` 204)
+
+#### Failure response (`Not Found`404)
+
 ## Offers `for SELLER role only`
 
 ### Create offers
