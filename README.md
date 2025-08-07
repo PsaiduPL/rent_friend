@@ -246,3 +246,49 @@ If profile doesnt exists
   "message" : "offer doesnt exists"
 }
 ```
+
+## Interest
+
+### Get interest list `pageable`
+
+* **URL** `/interests` 
+* **METHOD** `GET`
+
+#### Pageable modiferies
+
+`/interests?page=?&size=?&sort=?`
+Example
+* **page=2**
+* **size=10**
+* **sort=field,(ASC|DESC)** example : `sort=interest,DESC`
+#### Success Response(`OK` 200)
+```json
+
+{
+  "pages": 8,
+  "pageSize": 5,
+  "interests": [
+    {
+      "id": 16,
+      "interest": "Rysowanie"
+    },
+    {
+      "id": 17,
+      "interest": "Szydełkowanie"
+    },
+    {
+      "id": 18,
+      "interest": "Robienie na drutach"
+    },
+    {
+      "id": 19,
+      "interest": "Taniec"
+    },
+    {
+      "id": 20,
+      "interest": "Joga"
+    }
+  ]
+}
+      
+```
