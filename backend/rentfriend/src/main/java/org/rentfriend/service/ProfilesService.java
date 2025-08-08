@@ -8,6 +8,7 @@ import org.rentfriend.preview.OfferPreview;
 import org.rentfriend.preview.ProfilePreview;
 import org.rentfriend.entity.Profile;
 import org.rentfriend.repository.ProfileRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +32,14 @@ public class ProfilesService {
     this.ucb = ucb;
 
   }
+  @Cacheable(
+      value = "cached-profiles",
+      key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()",
+      unless = "#result == null"
+  )
   @Transactional
   public List<ProfilePreview> getAllSellerProfiles(Pageable pageable) {
+    System.out.println("wykonuje zapytanie do bazy profiles");
     Page<Profile> profiles =  profileRepository.findProfilesByUser_role("SELLER", PageRequest.of(
         pageable.getPageNumber(),
         pageable.getPageSize(),
@@ -42,7 +49,7 @@ public class ProfilesService {
 
   ProfilePreview mapProfilePreview(Profile profile) {
     return  new ProfilePreview(profile.getId(),
-        profile.getUser().getRole(),
+        profile.getUser().getRole(),//TODO przeanalizuje ten kod za duzo fetchowania
         profile.getName(),
         profile.getAge(),
         profile.getCity(),

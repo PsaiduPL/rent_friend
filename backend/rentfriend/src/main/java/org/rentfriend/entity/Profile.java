@@ -64,6 +64,6 @@ public class Profile {
   @OneToMany(mappedBy ="profile",cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
   List<Offer> offerList;
 
-  @OneToOne(mappedBy = "profile",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "profile",cascade = CascadeType.ALL)
   BodyParameter bodyParameter;
 }

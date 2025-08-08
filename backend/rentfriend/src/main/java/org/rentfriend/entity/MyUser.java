@@ -52,7 +52,7 @@ public class MyUser {
   String role;
 
   //@JsonIgnore
-  @OneToOne(mappedBy = "user")
+  @OneToOne(mappedBy = "user",fetch =  FetchType.LAZY)
   Profile profile;
 
   @Column(name = "creation_date",insertable = false)
