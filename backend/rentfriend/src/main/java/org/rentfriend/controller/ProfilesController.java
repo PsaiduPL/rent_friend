@@ -3,6 +3,8 @@ package org.rentfriend.controller;
 
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.dto.ProfileDetailsDTO;
+import org.rentfriend.entity.Interest;
+import org.rentfriend.filter.ProfileFilterRequest;
 import org.rentfriend.preview.ProfilePreview;
 import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
@@ -12,10 +14,7 @@ import org.rentfriend.service.ProfilesService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -43,9 +42,9 @@ public class ProfilesController {
   }
 
   @GetMapping()
-  ResponseEntity<List<ProfilePreview>> getProfiles(Pageable pageable) {
+  ResponseEntity<ProfilesPreview> getProfiles(@ModelAttribute ProfileFilterRequest filter, Pageable pageable) {
 
-    return ResponseEntity.ok(profilesService.getAllSellerProfiles(pageable));
+    return ResponseEntity.ok(profilesService.getAllSellerProfiles(filter,pageable));
   }
 
   @Transactional
@@ -55,5 +54,8 @@ public class ProfilesController {
     return ResponseEntity.ok(new ProfileDetailsDTO(profileService.findProfileById(id), offerService.findOffersByProfileId(id)));
   }
 
+
+  public record ProfilesPreview(int pages, int pageSize,List<ProfilePreview> profilesPreview) {
+  }
 
 }

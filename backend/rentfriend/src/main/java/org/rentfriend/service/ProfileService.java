@@ -39,16 +39,16 @@ public class ProfileService {
     this.userRepository = userRepository;
     this.profileRepository = profileRepository;
     this.ucb = ucb;
-
   }
-  @Transactional
-  public List<ProfileDTO> getAllSellerProfiles(Pageable pageable) {
-    Page<ProfileDTO> profiles =  profileRepository.findProfilesByUser_role("SELLER",PageRequest.of(
-        pageable.getPageNumber(),
-        pageable.getPageSize(),
-        pageable.getSort())).map(profile->mapProfile(profile));
-    return profiles.getContent();
-  }
+//  }
+//  @Transactional
+//  public List<ProfileDTO> getAllSellerProfiles(Pageable pageable) {
+//    Page<ProfileDTO> profiles =  profileRepository.findProfilesByUser_roleAndUser_Profile_Id_IsNotNull("SELLER",PageRequest.of(
+//        pageable.getPageNumber(),
+//        pageable.getPageSize(),
+//        pageable.getSort())).map(profile->mapProfile(profile));
+//    return profiles.getContent();
+//  }
 
 
   @Transactional

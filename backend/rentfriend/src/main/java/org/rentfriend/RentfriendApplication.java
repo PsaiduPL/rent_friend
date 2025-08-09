@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -38,6 +39,8 @@ public class RentfriendApplication {
         .expireAfterWrite(1, TimeUnit.MINUTES)); // Ustaw czas życia wpisów
     return cacheManager;
   }
+  @Transactional
+  @org.springframework.context.annotation.Profile("docker")
   @Bean
   CommandLineRunner init(UserRepository userRepository,
                          ProfileRepository profileRepository,
