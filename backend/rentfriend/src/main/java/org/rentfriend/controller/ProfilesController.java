@@ -1,6 +1,7 @@
 package org.rentfriend.controller;
 
 
+import jakarta.validation.Valid;
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.dto.ProfileDetailsDTO;
 import org.rentfriend.entity.Interest;
@@ -12,8 +13,10 @@ import org.rentfriend.service.OfferService;
 import org.rentfriend.service.ProfileService;
 import org.rentfriend.service.ProfilesService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -42,7 +45,7 @@ public class ProfilesController {
   }
 
   @GetMapping()
-  ResponseEntity<ProfilesPreview> getProfiles(@ModelAttribute ProfileFilterRequest filter, Pageable pageable) {
+  ResponseEntity<ProfilesPreview> getProfiles(@Valid @ModelAttribute ProfileFilterRequest filter, Pageable pageable) {
 
     return ResponseEntity.ok(profilesService.getAllSellerProfiles(filter,pageable));
   }
@@ -50,12 +53,20 @@ public class ProfilesController {
   @Transactional
   @GetMapping("/{id}")
   ResponseEntity<ProfileDetailsDTO> getProfile(@PathVariable Long id) {
-
-    return ResponseEntity.ok(new ProfileDetailsDTO(profileService.findProfileById(id), offerService.findOffersByProfileId(id)));
+    ProfileDTO profile =  profileService.findProfileById(id);
+    return ResponseEntity.ok(new ProfileDetailsDTO(profile, offerService.findOffersByProfileId(profile.id())));
   }
 
 
   public record ProfilesPreview(int pages, int pageSize,List<ProfilePreview> profilesPreview) {
+  }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getBindingResult().getFieldError().getDefaultMessage());
+  }
+
+  public record ErrorResponse(int status, String message) {
   }
 
 }

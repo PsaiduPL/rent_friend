@@ -326,3 +326,93 @@ Example
 }
       
 ```
+
+## Searching profiles
+
+
+## **Profile**
+
+### Get profiles `pageable`
+* **URL** `/profiles`
+* **METHOD** `GET`
+
+Search profiles which match filters and sorting
+#### **Pageable and filter modifiers**
+
+`?page=?&size=?&sort=?` - **pageable**
+
+`city=?&gender=?&maxAge=?&minAge=?` - **filters**
+
+**Example**
+* **sort=age,ASC**
+* **city=KRAKÓW**
+* **gender=female**
+* **maxAge=35**
+* **minAge=28**
+* **page=0**
+* **size=10**
+
+#### **Example usage**
+`http://localhost:8080/profiles?size=2&page=1&sort=age,ASC&city=KRAKÓW&gender=fedmale&maxAge=100&minAge=18`
+#### **Success Response (`OK` 200)**
+```json
+{
+  "pages": 1,
+  "pageSize": 10,
+  "profilesPreview": [
+    {
+      "id": 53,
+      "joinedIn": "2025-08-09",
+      "url": "/profiles/53",
+      "name": "williams.terry",
+      "age": 19,
+      "city": "WARSZAWA",
+      "gender": "female",
+      "top3InterestsList": [
+        {
+          "id": 8,
+          "interest": "Gra na gitarze"
+        },
+        {
+          "id": 10,
+          "interest": "Wędkarstwo"
+        },
+        {
+          "id": 16,
+          "interest": "Rysowanie"
+        }
+      ],
+      "top3offerPreviewList": []
+    },
+    {
+      "id": 90,
+      "joinedIn": "2025-08-09",
+      "url": "/profiles/90",
+      "name": "andy.schimmel",
+      "age": 26,
+      "city": "WARSZAWA",
+      "gender": "female",
+      "top3InterestsList": [
+        {
+          "id": 25,
+          "interest": "Pisanie"
+        },
+        {
+          "id": 36,
+          "interest": "Gra w szachy"
+        }
+      ],
+      "top3offerPreviewList": []
+    }
+  ]
+}
+```
+
+#### **Failure response (`BAD REQUEST` 400)**
+Usually bad filters
+```json
+{
+  "status": 400,
+  "message":  "wrong min age"
+}
+```

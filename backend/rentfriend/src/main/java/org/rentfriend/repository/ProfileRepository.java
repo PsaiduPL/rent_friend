@@ -18,14 +18,15 @@ import java.util.Optional;
 
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile,Long>, JpaSpecificationExecutor<Profile> {
+  @EntityGraph(attributePaths = {"user","bodyParameter","interestList"})
   Optional<Profile> findProfileById(Long id);
-
+  @EntityGraph(attributePaths = {"user","bodyParameter","interestList"})
   Optional<Profile> findProfileByUser_Username(String name);
-
+  @EntityGraph(attributePaths = {"user","interestList","bodyParameter"})
   Optional<Profile> findProfileByUser_Id(Long id);
 
-
-  @EntityGraph(attributePaths = {"offerList","bodyParameter","user"})
+  boolean existsById(Long id);
+  @EntityGraph(attributePaths = {"offerList","user","bodyParameter"})
   List<Profile> findAll( Specification<Profile> spec);
 
   Optional<Profile> findByIdAndUser_Id(Long Id,long userId);

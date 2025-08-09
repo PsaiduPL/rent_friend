@@ -1,6 +1,7 @@
 package org.rentfriend.service;
 
 
+import jakarta.validation.Valid;
 import org.rentfriend.controller.ProfilesController;
 import org.rentfriend.dto.InterestDTO;
 import org.rentfriend.dto.ProfileDTO;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +40,7 @@ public class ProfilesService {
 
     this.profileRepository = profileRepository;
     this.ucb = ucb;
+
     this.interestRepository = interestRepository;
 
   }
@@ -48,12 +51,12 @@ public class ProfilesService {
       unless = "#result == null"
   )
   @Transactional(readOnly = true)
-  public ProfilesController.ProfilesPreview getAllSellerProfiles(ProfileFilterRequest filter, Pageable pageable) {
+  public ProfilesController.ProfilesPreview getAllSellerProfiles( ProfileFilterRequest filter, Pageable pageable) {
     System.out.println("wykonuje zapytanie do bazy profiles");
     List<Profile> profiles = profileRepository.findAll(createSpec(filter));
     Page<Profile> profilesPage = profileRepository.findProfilesWithInterests(profiles, pageable);
     return new ProfilesController.ProfilesPreview(profilesPage.getTotalPages(),
-        profilesPage.getSize(), profilesPage.getContent().parallelStream().map(this::mapProfilePreview).collect(Collectors.toList())
+        profilesPage.getSize(), profilesPage.getContent().stream().map(this::mapProfilePreview).collect(Collectors.toList())
     );
   }
   Specification<Profile> createSpec(ProfileFilterRequest filter){
@@ -81,7 +84,9 @@ public class ProfilesService {
   }
   ProfilePreview mapProfilePreview(Profile profile) {
     return new ProfilePreview(profile.getId(),
-        profile.getUser().getRole(),//TODO przeanalizuje ten kod za duzo fetchowania
+       profile.getUser().getCreationDate(),
+        UriComponentsBuilder.fromUriString("/profiles/{id}").build(profile.getId()).toString(),
+       //TODO przeanalizuje ten kod za duzo fetchowania
         profile.getName(),
         profile.getAge(),
         profile.getCity(),
