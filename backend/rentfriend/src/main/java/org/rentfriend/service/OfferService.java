@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +52,9 @@ public class OfferService {
     Optional<Profile> profileDB = profileRepository.findById(profileId);
     if (profileDB.isPresent()) {
       var profile = profileDB.get();
-      return profile.getOfferList().stream().map(o -> mapOffer(o)).toList();
+      return profile.getOfferList().stream().map(o -> mapOffer(o))
+          .sorted(Comparator.comparingLong(OfferDTO::id)
+      ).toList();
     }
     throw new ProfileNotFoundException("Profile not found");
   }
@@ -94,7 +97,8 @@ public class OfferService {
     return new OfferDTO(offer.getId(),
         offer.getTitle(),
         offer.getDescription(),
-        offer.getPricePerHour().doubleValue());
+        offer.getPricePerHour().doubleValue(),
+        offer.getCreationDate());
   }
 
 

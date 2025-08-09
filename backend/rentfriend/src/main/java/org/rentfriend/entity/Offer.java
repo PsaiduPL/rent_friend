@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.Currency;
 
 @Entity
-@Table(name = "offers" )
+@Table(name = "offers")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +29,7 @@ public class Offer {
   @Column(name = "title", nullable = false, length = 255)
   String title;
 
-  @Column(name = "description",nullable = false)
+  @Column(name = "description", nullable = false)
   String description;
 
 
@@ -36,9 +37,12 @@ public class Offer {
   BigDecimal pricePerHour;
 
 
-  @ManyToOne(fetch =  FetchType.LAZY)
-      @JoinColumn(name = "profile_id")
-      @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id")
+  @JsonIgnore
   Profile profile;
 
+  @Column(name = "creation_date", insertable = false)
+  @Temporal(TemporalType.DATE)
+  Date creationDate;
 }

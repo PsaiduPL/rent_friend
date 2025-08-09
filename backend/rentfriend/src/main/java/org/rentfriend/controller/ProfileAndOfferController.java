@@ -13,6 +13,7 @@ import org.rentfriend.repository.ProfileRepository;
 import org.rentfriend.repository.UserRepository;
 import org.rentfriend.requestData.OfferRequest;
 import org.rentfriend.requestData.ProfileRequest;
+import org.rentfriend.requestData.ProfileUpdate;
 import org.rentfriend.service.OfferService;
 import org.rentfriend.service.ProfileService;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/profile")
@@ -58,7 +60,11 @@ public class ProfileAndOfferController {
     return ResponseEntity.created(uri).build();
 
   }
-
+  @PutMapping()
+  ResponseEntity<Void> updateProfile(@RequestBody @Valid ProfileRequest profileRequest, Principal principal) {
+    profileService.updateProfile(profileRequest, principal);
+    return ResponseEntity.noContent().build();
+  }
 
   @GetMapping()
   ResponseEntity<ProfileDetailsDTO> getProfile(Principal principal) {
@@ -85,10 +91,10 @@ public class ProfileAndOfferController {
   ResponseEntity<Void> createOffer(@RequestBody @Valid OfferRequest offerRequest,Principal principal) {
     MyUser user = userRepository.findMyUserByUsername(principal.getName()).get();
 
-    var offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
+    OfferDTO offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
 
     return ResponseEntity.created(ucb.path("/profile/offers/{id}")
-        .buildAndExpand(offer.id())
+            .buildAndExpand(Map.of("id",offer.id()))
         .toUri()).build();
 
   }

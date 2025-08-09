@@ -7,8 +7,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 
+import java.sql.Date;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class MyUser {
@@ -44,65 +52,11 @@ public class MyUser {
   String role;
 
   //@JsonIgnore
-  @OneToOne(mappedBy = "user")
+  @OneToOne(mappedBy = "user",fetch =  FetchType.LAZY)
   Profile profile;
-  public MyUser() {
-  }
 
-  public MyUser(Long id, String username, String email, String password, String role,Profile profile) {
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.password = password;
-    this.role = role;
-    this.profile = profile;
-  }
+  @Column(name = "creation_date",insertable = false)
+  @Temporal(TemporalType.DATE)
+  Date creationDate;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public void setRole(String role) {
-    this.role = role;
-  }
-
-  public Profile getProfile() {
-    return profile;
-  }
-
-  public void setProfile(Profile profile) {
-    this.profile = profile;
-  }
 }

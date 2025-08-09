@@ -151,6 +151,38 @@ Example
 If profile doesnt exists
 **Success Response(`NoContent` 204)**
 
+### Update your profile
+* **URL** `/profile`
+*  **METHOD** `PUT`
+
+#### Example request
+```json
+{
+    "name":"John Mielon", - max 50 char
+    "age":18, - 18 - 100
+    "city":"Krakow", - max 150 char
+    "description":"giga chad from cracow", - max 1500 char
+    "gender":"female", 
+    "bodyParameter":{
+        "height":190.5,
+        "weight":120.2
+    },
+    "interestList":[
+        {
+            "id":1
+        },
+        {
+            "id":2
+        }
+    ]
+}
+```
+#### `Remeber to leave the data you dont change, everything is updated`
+
+#### Success response (`NoContent` 204)
+
+#### Failure response (`Not Found`404)
+
 ## Offers `for SELLER role only`
 
 ### Create offers
@@ -188,7 +220,8 @@ If profile doesnt exists
         "id": 1,
         "title": "Przejscie na spacer",
         "description": "Tylko w godzinach 17 - 20",
-        "pricePerHour": 50.5
+        "pricePerHour": 50.5,
+      "creationDate": "2025-08-7"
     }
 ]
 ```
@@ -221,7 +254,8 @@ If profile doesnt exists
         "id": 1,
         "title": "Przejscie na spacer",
         "description": "Tylko w godzinach 17 - 20",
-        "pricePerHour": 50.5
+        "pricePerHour": 50.5,
+        "creationDate": "2025-08-07"
     }
 
 ```
@@ -245,4 +279,50 @@ If profile doesnt exists
   "status" : 404,
   "message" : "offer doesnt exists"
 }
+```
+
+## Interest
+
+### Get interest list `pageable`
+
+* **URL** `/interests` 
+* **METHOD** `GET`
+
+#### Pageable modiferies
+
+`/interests?page=?&size=?&sort=?`
+Example
+* **page=2**
+* **size=10**
+* **sort=field,(ASC|DESC)** example : `sort=interest,DESC`
+#### Success Response(`OK` 200)
+```json
+
+{
+  "pages": 8,
+  "pageSize": 5,
+  "interests": [
+    {
+      "id": 16,
+      "interest": "Rysowanie"
+    },
+    {
+      "id": 17,
+      "interest": "Szydełkowanie"
+    },
+    {
+      "id": 18,
+      "interest": "Robienie na drutach"
+    },
+    {
+      "id": 19,
+      "interest": "Taniec"
+    },
+    {
+      "id": 20,
+      "interest": "Joga"
+    }
+  ]
+}
+      
 ```

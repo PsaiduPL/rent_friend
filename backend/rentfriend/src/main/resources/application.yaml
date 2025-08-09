@@ -1,0 +1,24 @@
+logging:
+  file:
+    name: logs/app.log
+  threshold:
+    file: WARN
+server:
+  http2:
+    enabled: true
+spring:
+  application:
+    name: rentfriend
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+  cache:
+
+    type: caffeine
+  docker:
+    compose:
+      enabled: false
+  profiles:
+    active: docker
+  threads:
+    virtual:
+      enabled: true

@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users
              varchar(20)  not null,
     username varchar(50)  not null unique,
     email    varchar(100) not null,
-    password varchar(255) not null
+    password varchar(255) not null,
+    creation_date date DEFAULT NOW()::DATE
 );
 
 
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS offers
     description    TEXT                                    NOT NULL,
     price_per_hour numeric                                 NOT NULL,
     profile_id     BIGINT,
+    creation_date date DEFAULT NOW()::DATE,
     CONSTRAINT pk_offers PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS body_parameter
