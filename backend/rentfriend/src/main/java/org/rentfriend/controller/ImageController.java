@@ -82,10 +82,8 @@ public class ImageController {
   }
 
   @ExceptionHandler(ImageException.class)
-
-
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ErrorResponse handleProfileNotFoundException(RuntimeException ex) {
+  public ErrorResponse handleProfileNotFoundException(ImageException ex) {
     return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
   }
   public record ErrorResponse(int status, String message) {

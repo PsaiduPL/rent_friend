@@ -122,30 +122,41 @@ Example
 
 ```json
 {
-    "profile": {
-        "id": 2,
-        "role": "BUYER",
-        "name": "Hot juan",
-        "age": 19,
-        "city": "WARSAW",
-        "description": "Young lady from warsaw",
-        "gender": "female",
-        "bodyParameter": {
-            "height": 160.5,
-            "weight": 75.2
-        },
-        "interestList": [
-            {
-                "id": 1,
-                "interest": "Bieganie"
-            },
-            {
-                "id": 2,
-                "interest": "Jazda na rowerze"
-            }
-        ]
+  "profile": {
+    "id": 101,
+    "role": "SELLER",
+    "name": "elna.emmerich",
+    "age": 19,
+    "city": "ŁÓDŹ",
+    "description": "Revenge fantasies never work out the way you want.",
+    "gender": "male",
+    "bodyParameter": {
+      "height": 188.0,
+      "weight": 87.0
     },
-    "offers": []
+    "interestList": [
+      {
+        "id": 7,
+        "interest": "Czytanie książek"
+      },
+      {
+        "id": 20,
+        "interest": "Joga"
+      }
+    ],
+    "profilePicture": {
+      "profileURL": "/img/feba69da-ff52-4674-8470-3bd56f10f1ca"
+    }
+  },
+  "offers": [
+    {
+      "id": 168,
+      "title": "aaaaaaaaaaa",
+      "description": "aaaaaaaaaaaaaaaa",
+      "pricePerHour": 12.0,
+      "creationDate": "2025-08-10"
+    }
+  ]
 }
 ```
 If profile doesnt exists
@@ -357,55 +368,69 @@ Search profiles which match filters and sorting
 #### **Success Response (`OK` 200)**
 ```json
 {
-  "pages": 1,
-  "pageSize": 10,
+  "pages": 3,
+  "pageSize": 20,
   "profilesPreview": [
     {
-      "id": 53,
-      "joinedIn": "2025-08-09",
-      "url": "/profiles/53",
-      "name": "williams.terry",
-      "age": 19,
-      "city": "WARSZAWA",
+      "id": 11,
+      "joinedIn": "2025-08-10",
+      "url": "/profiles/11",
+      "name": "wes.hansen",
+      "age": 37,
+      "city": "OPOLE",
       "gender": "female",
       "top3InterestsList": [
-        {
-          "id": 8,
-          "interest": "Gra na gitarze"
-        },
         {
           "id": 10,
           "interest": "Wędkarstwo"
         },
         {
-          "id": 16,
-          "interest": "Rysowanie"
-        }
-      ],
-      "top3offerPreviewList": []
-    },
-    {
-      "id": 90,
-      "joinedIn": "2025-08-09",
-      "url": "/profiles/90",
-      "name": "andy.schimmel",
-      "age": 26,
-      "city": "WARSZAWA",
-      "gender": "female",
-      "top3InterestsList": [
-        {
-          "id": 25,
-          "interest": "Pisanie"
+          "id": 12,
+          "interest": "Majsterkowanie"
         },
         {
-          "id": 36,
-          "interest": "Gra w szachy"
+          "id": 19,
+          "interest": "Taniec"
         }
       ],
-      "top3offerPreviewList": []
-    }
-  ]
-}
+      "top3offerPreviewList": [
+        {
+          "title": "You sort of start thinking anything’s possible if you’ve got enough nerve.",
+          "pricePerHour": 174.6
+        }
+      ],
+      "profilePicture": null
+    },
+    {
+      "id": 12,
+      "joinedIn": "2025-08-10",
+      "url": "/profiles/12",
+      "name": "thuy.zieme",
+      "age": 22,
+      "city": "TORUŃ",
+      "gender": "male",
+      "top3InterestsList": [
+        {
+          "id": 37,
+          "interest": "Medytacja"
+        },
+        {
+          "id": 30,
+          "interest": "Ceramika"
+        },
+        {
+          "id": 29,
+          "interest": "Rzeźbiarstwo"
+        }
+      ],
+      "top3offerPreviewList": [
+        {
+          "title": "It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends.",
+          "pricePerHour": 139.2
+        }
+      ],
+      "profilePicture": null
+    },
 ```
 
 #### **Failure response (`BAD REQUEST` 400)**
@@ -416,3 +441,65 @@ Usually bad filters
   "message":  "wrong min age"
 }
 ```
+
+## Profile picture
+
+### Post profile picture 
+* **URL** `/img`
+* **METHOD** `POST`
+* **Content type** `multipart form data`
+```
+file : image.jpg
+```
+**Example react**
+```js
+export const uploadProfilePicture = (file) => {
+   
+    const formData = new FormData();
+    formData.append('file', file);
+
+ 
+    return apiService.post('/img', formData);
+};
+```
+#### Success response(`Created`201)
+* `Location` - uri to file `relative` example `/img/feba69da-ff52-4674-8470-3bd56f10f1ca`
+
+#### Failure response(`Bad request`400)
+```json
+{
+  "status": 400,
+  "message":  "Image already exists"
+}
+```
+
+### Delete profile picture
+
+* **URL** `/img/{uuid}` - id of your picture
+* **METHOD** `DELETE`
+
+#### Success response(`No content` 204)
+
+#### Failure response()
+```json
+{
+  "status": 404,
+  "message":  "Image not found"
+}
+```
+
+### Get profile picture
+* **URL** `/img/{uuid}` - id of your picture
+* **METHOD** `GET`
+
+#### Success response(`Ok`200)
+Image file
+
+#### Failure response (`Not found` 404)
+```json
+{
+  "status": 404,
+  "message":  "Image not found"
+}
+```
+
