@@ -1,92 +1,79 @@
 package org.rentfriend.config;
 
 
+import com.github.javafaker.Faker;
 import org.rentfriend.entity.*;
 import org.rentfriend.repository.InterestRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+@org.springframework.context.annotation.Profile("init-data")
 @Configuration
 public class InitUserData {
+  @Value("${init.data.size}")
+  Integer size;
+  @Value("${init.data.cityRegex}")
+  String citiesRegex;
+  Faker faker = new Faker();
 
+  @Lazy
   @Bean
    public List<MyUser> users(PasswordEncoder passwordEncoder){
-    MyUser myUser = new MyUser();
-    myUser.setUsername("john");
-    myUser.setPassword(passwordEncoder.encode("john"));
-    myUser.setEmail("john@gmail.com");
-    myUser.setRole("SELLER");
 
-    MyUser myUser2 = new MyUser();
-    myUser2.setUsername("pawel");
-    myUser2.setPassword(passwordEncoder.encode("pawel"));
-    myUser2.setEmail("pawel@gmail.com");
-    myUser2.setRole("BUYER");
-    return List.of(myUser,myUser2);
+    System.out.println("----------"+size);
+    List<MyUser> users = Stream.generate(()->{
+      MyUser a = new MyUser();
+
+      a.setUsername(faker.name().firstName()+faker.random().hex(3));
+      a.setEmail(faker.internet().emailAddress());
+      a.setPassword(passwordEncoder.encode("123"));
+      a.setRole(faker.regexify("SELLER|BUYER"));
+      return a;
+    }).parallel().limit(size).collect(Collectors.toList());
+
+    users.add(new MyUser(null,"user","user@gmail.com",passwordEncoder.encode("user"),"SELLER",null,null));
+    return users;
+
   }
 
-
+  @Lazy
   @Bean
   public List<Profile> profiles(InterestRepository interestRepository){
-    Profile profile = new Profile();
 
-    profile.setAge(15);
-    profile.setDescription("Young lady from warsaw");
-    profile.setCity("WARSAW");
-    profile.setName("Hot pawel123");
-    profile.setGender("male");
-    List<Interest> interestList = interestRepository.findAll(Pageable.ofSize(2)).getContent();
-    profile.setInterestList(interestList);
+    return Stream.generate(()->{
+      Profile p = new Profile();
+      p.setAge(faker.number().numberBetween(18,50));
+      p.setCity(faker.regexify(citiesRegex));
+      p.setDescription(faker.howIMetYourMother().quote());
+      p.setName(faker.name().username());
+      p.setGender(faker.regexify("male|female"));
 
-    Offer offer = new Offer();
-    offer.setTitle("Przejscie na spacer");
-    offer.setDescription("Tylko w godzinach 17 - 20");
-    offer.setPricePerHour(BigDecimal.valueOf(50.5));
-    profile.setOfferList(List.of(offer));
-    offer.setProfile(profile);
-
-
-    BodyParameter bodyParameter = new BodyParameter();
-    bodyParameter.setHeight(178.5);
-    bodyParameter.setWeight(75.2);
-    bodyParameter.setProfile(profile);
-
-    //bodyParameterRepository.save(bodyParameter);
-   // profile.setInterestList(List.of(new Interest(1L,null,null),new Interest(2L,null,null),new Interest(3L,null,null)));
-    profile.setBodyParameter(bodyParameter);
-
-    Profile profile1 = new Profile();
-
-    profile1.setAge(19);
-    profile1.setDescription("Young lady from warsaw");
-    profile1.setCity("WARSAW");
-    profile1.setName("Hot juan");
-    profile1.setGender("female");
-    List<Interest> interestList1 = interestRepository.findAll(Pageable.ofSize(2)).getContent();
-    profile1.setInterestList(interestList1);
-
-//    Offer offer1 = new Offer();
-//    offer1.setTitle("Przejscie na kino");
-//    offer1.setDescription("Tylko w godzinach 16 - 20");
-//    offer1.setPricePerHour(BigDecimal.valueOf(20.5));
-//    profile1.setOfferList(List.of(offer1));
-//    offer1.setProfile(profile1);
+      BodyParameter bodyParameter = new BodyParameter();
+      bodyParameter.setHeight(faker.number().randomDouble(1,150,210));
+      bodyParameter.setWeight(faker.number().randomDouble(1,45,120));
+      bodyParameter.setProfile(p);
+      p.setBodyParameter(bodyParameter);
+      List<Interest> a = Stream.generate(()->{
+        Interest i = new Interest();
+        i.setId((long) faker.number().numberBetween(1,40));
+        return i;
+      }).parallel().limit(faker.number().numberBetween(1,10)).collect(Collectors.toList());
+      p.setInterestList(a);
+      return p;
+    }).limit(size).collect(Collectors.toList());
 
 
-    BodyParameter bodyParameter1 = new BodyParameter();
-    bodyParameter1.setHeight(160.5);
-    bodyParameter1.setWeight(75.2);
-    bodyParameter1.setProfile(profile1);
 
-    //bodyParameterRepository.save(bodyParameter);
-    //profile1.setInterestList(List.of(new Interest(2L,null,null),new Interest(3L,null,null)));
-    profile1.setBodyParameter(bodyParameter1);
 
-    return List.of(profile,profile1);
   }
 }

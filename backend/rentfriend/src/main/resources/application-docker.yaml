@@ -19,7 +19,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        enable_lazy_load_no_trans: true
+        enable_lazy_load_no_trans: false
         format_sql: false
     show-sql: true
   sql:
@@ -27,3 +27,8 @@ spring:
       data-locations: classpath:db/data-docker.sql
       mode: always
       schema-locations: classpath:db/schema-docker.sql
+
+init:
+  data:
+    size: 100
+    cityRegex: KRAKÓW|WARSZAWA|POZNAŃ|GDAŃSK|RZESZÓW|WROCŁAW|SZCZECIN|GDYNIA|ŁÓDŹ|OPOLE|TORUŃ|BYDGOSZCZ|KATOWICE

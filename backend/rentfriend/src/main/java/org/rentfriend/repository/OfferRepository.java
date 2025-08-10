@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface OfferRepository extends JpaRepository<Offer,Long> {
   Optional<Offer> findByIdAndProfile_Id(Long id, Long profile_id);
 
+
+  List<Offer> findOffersByProfile_Id(Long id);
 
   @Modifying
   @Query("UPDATE Offer o set o.title = :title,o.description = :description,o.pricePerHour = :pricePerHour WHERE o.id = :id")

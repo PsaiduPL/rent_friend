@@ -18,6 +18,7 @@ import org.rentfriend.service.OfferService;
 import org.rentfriend.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -54,9 +55,8 @@ public class ProfileAndOfferController {
       , Principal principal) {
 
     ProfileDTO profile = profileService.createProfile(profileRequest, principal);
-    URI uri = ucb.path("/profiles/{id}")
-        .buildAndExpand(profile.id())
-        .toUri();
+    URI uri = UriComponentsBuilder.fromUriString("/profiles/{id}")
+        .build(profile.id());
     return ResponseEntity.created(uri).build();
 
   }
@@ -65,11 +65,11 @@ public class ProfileAndOfferController {
     profileService.updateProfile(profileRequest, principal);
     return ResponseEntity.noContent().build();
   }
-
+  @Transactional
   @GetMapping()
   ResponseEntity<ProfileDetailsDTO> getProfile(Principal principal) {
-    var user = userRepository.findTopMyUserByUsername(principal.getName());
-    var profileDB = profileRepository.findProfileByUser_Id(user.getId());
+    //var user = userRepository.findTopMyUserByUsername(principal.getName());
+    var profileDB = profileRepository.findProfileByUser_Id(userRepository.getUserIdByUsername(principal.getName()));
     if (profileDB.isPresent()) {
 
       ProfileDTO profile = profileService.mapProfile(profileDB.get());
@@ -93,9 +93,8 @@ public class ProfileAndOfferController {
 
     OfferDTO offer = offerService.createOffer(user.getProfile().getId(), offerRequest);
 
-    return ResponseEntity.created(ucb.path("/profile/offers/{id}")
-            .buildAndExpand(Map.of("id",offer.id()))
-        .toUri()).build();
+    return ResponseEntity.created(UriComponentsBuilder.fromUriString("/profile/offers/{id}")
+            .build(offer.id())).build();
 
   }
 

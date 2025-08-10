@@ -2,10 +2,12 @@ package org.rentfriend.preview;
 
 import org.rentfriend.dto.InterestDTO;
 
+import java.sql.Date;
 import java.util.List;
 
 public record ProfilePreview(Long id,
-                             String role,
+                             Date joinedIn,
+                             String url,
                              String name,
                              Integer age,
                              String city,

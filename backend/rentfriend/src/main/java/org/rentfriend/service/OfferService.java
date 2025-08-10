@@ -49,10 +49,10 @@ public class OfferService {
   @Transactional
   public List<OfferDTO> findOffersByProfileId(Long profileId) {
 
-    Optional<Profile> profileDB = profileRepository.findById(profileId);
-    if (profileDB.isPresent()) {
-      var profile = profileDB.get();
-      return profile.getOfferList().stream().map(o -> mapOffer(o))
+
+    if (profileRepository.existsById(profileId)) {
+
+      return offerRepository.findOffersByProfile_Id(profileId).stream().map(o -> mapOffer(o))
           .sorted(Comparator.comparingLong(OfferDTO::id)
       ).toList();
     }

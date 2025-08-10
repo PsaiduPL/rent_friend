@@ -18,7 +18,10 @@ spring:
     compose:
       enabled: false
   profiles:
-    active: docker
+    active:
+      - docker
+      - init-data
   threads:
     virtual:
       enabled: true
+
