@@ -10,5 +10,6 @@ public record ProfileDTO(Long id,
                          String description,
                          String gender,
                          BodyParameterDTO bodyParameter,
-                         List<InterestDTO> interestList) {
+                         List<InterestDTO> interestList,
+                         ImageDTO profilePicture) {
 }

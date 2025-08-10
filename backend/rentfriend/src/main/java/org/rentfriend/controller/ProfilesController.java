@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.dto.ProfileDetailsDTO;
 import org.rentfriend.entity.Interest;
+import org.rentfriend.exception.ProfileNotFoundException;
 import org.rentfriend.filter.ProfileFilterRequest;
 import org.rentfriend.preview.ProfilePreview;
 import org.rentfriend.repository.ProfileRepository;
@@ -67,6 +68,11 @@ public class ProfilesController {
   }
 
   public record ErrorResponse(int status, String message) {
+  }
+  @ExceptionHandler(ProfileNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ErrorResponse handleProfileNotFoundException(ProfileNotFoundException ex) {
+    return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
   }
 
 }

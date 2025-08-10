@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS profile_interest CASCADE;
 DROP TABLE IF EXISTS interests;
 DROP TABLE IF EXISTS offers;
 DROP TABLE IF EXISTS  body_parameter;
+DROP TABLE IF EXISTS images;
 CREATE TABLE IF NOT EXISTS users
 (
     id
@@ -73,7 +74,19 @@ CREATE TABLE IF NOT EXISTS body_parameter
     profile_id BIGINT                                  NOT NULL,
     CONSTRAINT pk_body_parameter PRIMARY KEY (id)
 );
+CREATE TABLE images
+(
+    id         UUID   NOT NULL,
+    url        VARCHAR(255),
+    profile_id BIGINT NOT NULL,
+    CONSTRAINT pk_images PRIMARY KEY (id)
+);
 
+ALTER TABLE images
+    ADD CONSTRAINT uc_images_profile UNIQUE (profile_id);
+
+ALTER TABLE images
+    ADD CONSTRAINT FK_IMAGES_ON_PROFILE FOREIGN KEY (profile_id) REFERENCES profiles (id);
 ALTER TABLE body_parameter
     ADD CONSTRAINT uc_body_parameter_profile UNIQUE (profile_id);
 

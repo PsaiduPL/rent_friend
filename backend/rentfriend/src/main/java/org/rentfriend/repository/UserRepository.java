@@ -18,7 +18,8 @@ import java.util.Optional;
 public interface UserRepository  extends JpaRepository<MyUser,Long> {
   @EntityGraph(attributePaths = {"profile","profile.bodyParameter"})
   Optional<MyUser> findMyUserByUsername(String username);
-  @Query("SELECT u FROM MyUser u WHERE u.username = :username")
+
+  @Query("SELECT new MyUser(u.id,u.username,u.email,u.password,u.role,null,u.creationDate) FROM MyUser u WHERE u.username = :username")
   Optional<MyUser> findUserByUsername(@Param("username")String username);
   MyUser findTopMyUserByUsername(String username);
   Optional<MyUser> findMyUserByUsernameOrEmail(@NotBlank @Size(min = 1, max = 50) String username,String email);

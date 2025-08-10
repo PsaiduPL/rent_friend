@@ -28,7 +28,7 @@ public class MyUserDetailsService implements UserDetailsService {
     Optional<MyUser> myUser = userRepository.findUserByUsername(username);
     if (myUser.isPresent()) {
       var user = myUser.get();
-
+      log.info("Uzytkownik istnieje");
       return User.builder()
           .username(user.getUsername())
           .password(user.getPassword())

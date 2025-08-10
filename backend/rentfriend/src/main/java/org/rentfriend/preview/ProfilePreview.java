@@ -1,5 +1,6 @@
 package org.rentfriend.preview;
 
+import org.rentfriend.dto.ImageDTO;
 import org.rentfriend.dto.InterestDTO;
 
 import java.sql.Date;
@@ -13,5 +14,6 @@ public record ProfilePreview(Long id,
                              String city,
                              String gender,
                              List<InterestDTO> top3InterestsList,
-                             List<OfferPreview> top3offerPreviewList) {
+                             List<OfferPreview> top3offerPreviewList,
+                             ImageDTO profilePicture) {
 }
