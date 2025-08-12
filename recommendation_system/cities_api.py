@@ -1,7 +1,7 @@
 import csv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
-from sqlalchemy import create_engine, text, Column, Integer, String
+from sqlalchemy import create_engine, text, Column, Integer, String, desc
 from sqlalchemy.orm import Session, declarative_base
 from typing import Annotated
 
@@ -17,6 +17,7 @@ class City(Base):
     __tablename__ = 'cities'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
+    population = Column(Integer,nullable=False)
 
 
 # --- Funkcje pomocnicze do ładowania danych ---
@@ -40,8 +41,11 @@ def load_cities_from_csv(session: Session, filepath: str = "data/cleared_cities.
             for row in reader:
                 # Zakładamy, że plik CSV ma kolumnę 'name'
                 city_name = row.get("name")
+                city_population = row.get("population")
+
                 if city_name:
-                    cities_to_add.append(City(name=city_name))
+                    cities_to_add.append(City(name=city_name,population=city_population))
+
 
             if cities_to_add:
                 session.add_all(cities_to_add)
@@ -62,7 +66,7 @@ async def lifespan(app: FastAPI):
     # Ten kod jest wykonywany przy starcie aplikacji
     print("Application startup: Initializing data...")
     # Tworzenie tabeli, jeśli nie istnieje
-    Base.metadata.create_all(bind=engine)
+    #Base.metadata.create_all(bind=engine)
 
     # Używamy nowej sesji do operacji startowych
     with Session(engine) as session:
@@ -108,15 +112,15 @@ async def read_city(city: str, session: SessionDep):
     """Wyszukuje miasta po nazwie z użyciem LIKE."""
     param = f"{city}%"
     # Używamy modelu SQLAlchemy do zapytania - jest to bezpieczniejsza praktyka
-    result = session.query(City).filter(City.name.like(param)).all()
+    result = session.query(City).filter(City.name.like(param)).order_by(desc(City.population)).all()
     # Konwertujemy wynik na listę słowników
-    cities_list = [{"id": c.id, "name": c.name} for c in result]
-    return {"rows": cities_list}
+    cities_list = [{"name": c.name} for c in result]
+    return {"cities": cities_list}
 
 
 @app.get("/cities")
 async def read_all_cities(session: SessionDep):
     """Zwraca wszystkie miasta z bazy danych."""
-    result = session.query(City).all()
-    cities_list = [{"id": c.id, "name": c.name} for c in result]
-    return {"rows": cities_list}
+    result = session.query(City).order_by(desc(City.population)).all()
+    cities_list = [{"name": c.name} for c in result]
+    return {"cities": cities_list}
