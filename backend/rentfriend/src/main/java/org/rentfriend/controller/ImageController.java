@@ -53,7 +53,7 @@ public class ImageController {
   @ResponseBody
   public ResponseEntity<Resource> serveFile(@PathVariable("uuid") String filename) {
 
-    Resource file = imageService.loadAsResource(filename);
+    var file = imageService.loadAsResource(filename);
 
     if (file == null)
       return ResponseEntity.notFound().build();
@@ -68,7 +68,7 @@ public class ImageController {
                                                Principal principal) {
 
     logger.info("uploadFile_Start");
-    UUID uuid = imageService.store(file,principal);
+    var uuid = imageService.store(file,principal);
 //    redirectAttributes.addFlashAttribute("message",
 //        "You successfully uploaded " + file.getOriginalFilename() + "!");
     logger.info("uploadFile_End");
