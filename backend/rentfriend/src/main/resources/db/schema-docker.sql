@@ -81,6 +81,10 @@ CREATE TABLE images
     profile_id BIGINT NOT NULL,
     CONSTRAINT pk_images PRIMARY KEY (id)
 );
+CREATE TABLE buckets(
+    id BIGSERIAL PRIMARY KEY,
+    count INT
+);
 
 ALTER TABLE images
     ADD CONSTRAINT uc_images_profile UNIQUE (profile_id);

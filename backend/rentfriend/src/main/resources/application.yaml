@@ -35,3 +35,4 @@ spring:
 image:
     storage:
         location: images
+        buckets : 30
