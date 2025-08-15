@@ -3,7 +3,7 @@
 
 # Log file
 *.log
-
+*.pyc
 # BlueJ files
 *.ctxt
 
@@ -38,3 +38,5 @@ replay_pid*
 *.iws
 *.iml
 *.ipr
+
+recommendation_system/__pycache__/
