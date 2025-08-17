@@ -2,6 +2,7 @@ package org.rentfriend.service;
 
 
 import org.rentfriend.dto.BodyParameterDTO;
+import org.rentfriend.dto.ImageDTO;
 import org.rentfriend.dto.InterestDTO;
 import org.rentfriend.dto.ProfileDTO;
 import org.rentfriend.entity.*;
@@ -64,8 +65,8 @@ public class ProfileService {
     profile.setName(profileRequest.name());
     profile.setDescription(profileRequest.description());
     profile.setGender(profileRequest.gender());
-    profile.setInterestList(profileRequest.interestList().stream().map(a->
-        new Interest(a.id(),null,null)).toList());
+    profile.setInterestList(profileRequest.interestList().stream().map(a ->
+        new Interest(a.id(), null, null)).toList());
     Optional<BodyParameterRequest> bodyParameterRequest = Optional.ofNullable(profileRequest.bodyParameter());
 
     bodyParameterRequest.ifPresent(bodyParameterRequest1 -> profile.setBodyParameter(new BodyParameter(null, bodyParameterRequest1.height(),
@@ -78,6 +79,7 @@ public class ProfileService {
 
     return mapProfile(created);
   }
+
   @Transactional
   public void updateProfile(ProfileRequest profileRequest, Principal principal) {
     MyUser myUser = userRepository.findTopMyUserByUsername(principal.getName());
@@ -85,26 +87,33 @@ public class ProfileService {
     if (profileDB.isPresent()) {
 
 
+      var profile = profileDB.get();
 
-          var profile = profileDB.get();
+      profile.setName(profileRequest.name());
+      profile.setDescription(profileRequest.description());
+      profile.setGender(profileRequest.gender());
+      profile.setOfferList(profile.getOfferList());
+      profile.setCity(profileRequest.city());
+      profile.setAge(profileRequest.age());
 
-          profile.setName(profileRequest.name());
-          profile.setDescription(profileRequest.description());
-          profile.setGender(profileRequest.gender());
-          profile.setOfferList(profile.getOfferList());
-          profile.setCity(profileRequest.city());
-          profile.setAge(profileRequest.age());
-          BodyParameter bodyParameter = profile.getBodyParameter();
-          bodyParameter.setHeight(profileRequest.bodyParameter().height());
-          bodyParameter.setWeight(profileRequest.bodyParameter().weight());
-          profile.setBodyParameter(bodyParameter);
-
-          profile.setInterestList(profileRequest.interestList().stream().map(a->
-              new Interest(a.id(),null,null)).collect(Collectors.toList()));
-          profileRepository.save(profile);
-          return ;
+      BodyParameter bodyParameter = profile.getBodyParameter();
+      if (profileRequest.bodyParameter() != null) {
+        if (bodyParameter == null) {
+          bodyParameter = new BodyParameter();
         }
-        throw new ProfileNotFoundException("Profile not found");
+        bodyParameter.setHeight(profileRequest.bodyParameter().height());
+        bodyParameter.setWeight(profileRequest.bodyParameter().weight());
+        bodyParameter.setProfile(profile);
+      }
+      profile.setBodyParameter(bodyParameter);
+
+
+      profile.setInterestList(profileRequest.interestList().stream().map(a ->
+          new Interest(a.id(), null, null)).collect(Collectors.toList()));
+      profileRepository.save(profile);
+      return;
+    }
+    throw new ProfileNotFoundException("Profile not found");
   }
 
   public ProfileDTO findProfileById(Long id) {
@@ -116,7 +125,6 @@ public class ProfileService {
     throw new ProfileNotFoundException("Profile not found");
 
   }
-
 
 
   public ProfileDTO mapProfile(Profile profile) {
@@ -137,11 +145,21 @@ public class ProfileService {
         profile.getDescription(),
         profile.getGender(),
         body,
-        profile.getInterestList().stream().map(i->{
+        profile.getInterestList().stream().map(i -> {
           return new InterestDTO(i.getId(), i.getInterest());
-        }).toList()
+        }).toList(),
+        mapImage(profile.getProfileImage())
+
 
     );
     return profileDTO;
+  }
+
+  public ImageDTO mapImage(ImageDB image) {
+    if (image == null) {
+      return null;
+    }
+
+    return new ImageDTO(UriComponentsBuilder.fromUriString("/img/{uuid}").buildAndExpand(image.getId()).toUriString());
   }
 }

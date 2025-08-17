@@ -28,7 +28,7 @@ public class InterestService {
     // Ta linijka wykona się tylko wtedy, gdy danych nie ma w cache
     System.out.println("Wykonuję zapytanie do bazy danych...");
 
-    Page<Interest> interestsPage = interestRepository.getAllWithoutAdditionalData(PageRequest.of(
+    var interestsPage = interestRepository.getAllWithoutAdditionalData(PageRequest.of(
         pageable.getPageNumber(),
         pageable.getPageSize(),
         pageable.getSort()

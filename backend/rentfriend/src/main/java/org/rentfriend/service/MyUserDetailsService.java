@@ -25,10 +25,10 @@ public class MyUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     log.info("Sprawdzam uzytkownika");//TODO sprawdz te fetchowanie czemu on wykonuje 3 zapytania
-    Optional<MyUser> myUser = userRepository.findUserByUsername(username);
+    var myUser = userRepository.findUserByUsername(username);
     if (myUser.isPresent()) {
       var user = myUser.get();
-
+      log.info("Uzytkownik istnieje");
       return User.builder()
           .username(user.getUsername())
           .password(user.getPassword())

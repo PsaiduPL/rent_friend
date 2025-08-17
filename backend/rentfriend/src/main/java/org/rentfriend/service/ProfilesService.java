@@ -33,14 +33,15 @@ public class ProfilesService {
   final ProfileRepository profileRepository;
   final UriComponentsBuilder ucb;
   final InterestRepository interestRepository;
-
+  final ProfileService profileService;
   public ProfilesService(ProfileRepository profileRepository,
                          UriComponentsBuilder ucb,
-                         InterestRepository interestRepository) {
+                         InterestRepository interestRepository,
+                         ProfileService profileService) {
 
     this.profileRepository = profileRepository;
     this.ucb = ucb;
-
+    this.profileService = profileService;
     this.interestRepository = interestRepository;
 
   }
@@ -92,7 +93,8 @@ public class ProfilesService {
         profile.getCity(),
         profile.getGender(),
         profile.getInterestList().stream().limit(3).map(a -> new InterestDTO(a.getId(), a.getInterest())).toList(),
-        profile.getOfferList().stream().limit(3).map(this::mapOfferPreview).toList());
+        profile.getOfferList().stream().limit(3).map(this::mapOfferPreview).toList(),
+        profileService.mapImage(profile.getProfileImage()));
   }
 
   OfferPreview mapOfferPreview(Offer offer) {

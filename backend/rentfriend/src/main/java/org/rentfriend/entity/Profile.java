@@ -42,7 +42,7 @@ public class Profile {
   String gender;
 
   @JsonIgnore
-  @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+  @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id",
       nullable = false, insertable = true, updatable = false
       , unique = true)
@@ -61,9 +61,12 @@ public class Profile {
   )
   List<Interest> interestList;
 
-  @OneToMany(mappedBy ="profile",cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
+  @OneToMany(mappedBy ="profile",cascade = {CascadeType.PERSIST, CascadeType.MERGE},fetch =  FetchType.LAZY)
   List<Offer> offerList;
 
-  @OneToOne(mappedBy = "profile",cascade = CascadeType.ALL)
+  @OneToOne(mappedBy = "profile",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   BodyParameter bodyParameter;
+
+  @OneToOne(mappedBy = "profile",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  ImageDB profileImage;
 }

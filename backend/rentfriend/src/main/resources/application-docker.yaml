@@ -30,5 +30,5 @@ spring:
 
 init:
   data:
-    size: 100
-    cityRegex: KRAKÓW|WARSZAWA|POZNAŃ|GDAŃSK|RZESZÓW|WROCŁAW|SZCZECIN|GDYNIA|ŁÓDŹ|OPOLE|TORUŃ|BYDGOSZCZ|KATOWICE
+    size: 50
+    cityRegex: Kraków|Warszawa|Poznań|Gdanśk|Rzeszów|Wrocław|Szczecin|Gdynia|Łódź|Opole|Toruń|Bydgoszcz|Katowice

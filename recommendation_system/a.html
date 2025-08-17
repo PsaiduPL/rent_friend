@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyszukiwarka Miast</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+        }
+        .city {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Wyszukiwarka Miast</h1>
+<input type="text" id="cityName" placeholder="Wpisz nazwę miasta...">
+
+<div id="cities-container" style="margin-top: 20px;"></div>
+
+<script>
+// Funkcja debounce, aby ograniczyć liczbę zapytań do API
+function debounce(func, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+async function getCities() {
+    const cityName = document.getElementById('cityName').value.trim();
+    const citiesContainer = document.getElementById('cities-container');
+    citiesContainer.innerHTML = '';
+
+    let url;
+    if (cityName) {
+        // Szukamy po nazwie miasta
+        url = `http://127.0.0.1:8000/cities/${encodeURIComponent(cityName)}`;
+    } else {
+        // Pobieramy wszystkie miasta
+        url = `http://127.0.0.1:8000/cities`;
+    }
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`Błąd HTTP! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data.cities) && data.cities.length > 0) {
+            data.cities.forEach(city => {
+                const cityElement = document.createElement('div');
+                cityElement.className = 'city';
+                cityElement.textContent = city.name;
+                citiesContainer.appendChild(cityElement);
+            });
+        } else {
+            citiesContainer.textContent = 'Nie znaleziono miast.';
+        }
+    } catch (error) {
+        console.error('Wystąpił błąd podczas pobierania danych:', error);
+        citiesContainer.textContent = 'Wystąpił błąd podczas pobierania danych.';
+    }
+}
+
+// Automatyczne wyszukiwanie z opóźnieniem 300ms
+document.getElementById('cityName').addEventListener('input', debounce(getCities, 200));
+
+// Przy pierwszym otwarciu strony od razu pobieramy wszystkie miasta
+getCities();
+</script>
+
+</body>
+</html>

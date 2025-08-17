@@ -86,6 +86,7 @@ public class SecurityConfig {
 //            req.requestMatchers("")
           req.requestMatchers("/profile").hasAnyRole("BUYER", "SELLER");
           req.requestMatchers("/profile/**").hasRole("SELLER");
+          req.requestMatchers("/img/**").hasAnyRole("BUYER", "SELLER");
           req.requestMatchers("/user/details").authenticated();
           req.requestMatchers("/data").authenticated();
           req.requestMatchers("/interests").permitAll() ;

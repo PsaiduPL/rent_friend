@@ -17,4 +17,5 @@ public interface InterestRepository extends JpaRepository<Interest,Long> {
   @Query(value = "SELECT i FROM Interest i",countQuery = "SELECT COUNT(i) FROM Interest i")
   Page<Interest> getAllWithoutAdditionalData(Pageable pageable);
 
+
 }

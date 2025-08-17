@@ -1,27 +1,38 @@
 logging:
-  file:
-    name: logs/app.log
-  threshold:
-    file: WARN
+    file:
+        name: logs/app.log
+    threshold:
+        file: WARN
 server:
-  http2:
-    enabled: true
+    http2:
+        enabled: true
 spring:
-  application:
-    name: rentfriend
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
-  cache:
+    application:
+        name: rentfriend
+    autoconfigure:
+        exclude: org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+    cache:
 
-    type: caffeine
-  docker:
-    compose:
-      enabled: false
-  profiles:
-    active:
-      - docker
-      - init-data
-  threads:
-    virtual:
-      enabled: true
+        type: caffeine
+    docker:
+        compose:
+            enabled: false
+    profiles:
+        active:
+            - docker
+            - init-data
+    threads:
+        virtual:
+            enabled: true
 
+
+    servlet:
+        multipart:
+            enabled: true
+            max-file-size: 2MB
+            max-request-size: 10MB
+
+image:
+    storage:
+        location: images
+        buckets : 10
