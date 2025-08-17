@@ -64,10 +64,11 @@ public class ImageController {
   }
 
   @PostMapping()
-  public ResponseEntity<Void> handleFileUpload(@RequestParam("file") MultipartFile file,
+  public ResponseEntity<Void> handleFileUpload(@RequestPart("file") MultipartFile file,
                                                Principal principal) {
 
     logger.info("uploadFile_Start");
+
     var uuid = imageService.store(file,principal);
 //    redirectAttributes.addFlashAttribute("message",
 //        "You successfully uploaded " + file.getOriginalFilename() + "!");

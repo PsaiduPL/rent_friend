@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public interface ImageService {
 
 
-    void init();
+    //void init();
 
     UUID store(MultipartFile file, Principal principal);
 

@@ -74,17 +74,14 @@ CREATE TABLE IF NOT EXISTS body_parameter
     profile_id BIGINT                                  NOT NULL,
     CONSTRAINT pk_body_parameter PRIMARY KEY (id)
 );
-CREATE TABLE images
+CREATE TABLE IF NOT EXISTS images
 (
     id         UUID   NOT NULL,
     url        VARCHAR(255),
     profile_id BIGINT NOT NULL,
     CONSTRAINT pk_images PRIMARY KEY (id)
 );
-CREATE TABLE buckets(
-    id BIGSERIAL PRIMARY KEY,
-    count INT
-);
+
 
 ALTER TABLE images
     ADD CONSTRAINT uc_images_profile UNIQUE (profile_id);
